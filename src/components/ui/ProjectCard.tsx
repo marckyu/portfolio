@@ -11,9 +11,21 @@ export default function ProjectCard({ project }: { project: Project }) {
   const { name, description, image, tech, features, repo, demo } = project;
 
   return (
-    <GlassCard as="article" className="grid overflow-hidden lg:grid-cols-[1.05fr_1fr]">
-      {/* Screenshot (falls back to a gradient panel if the file is missing) */}
-      <div className="relative aspect-[16/10] bg-surface lg:aspect-auto lg:min-h-full">
+    <GlassCard
+      as="article"
+      className="group relative grid overflow-hidden transition-transform duration-300 hover:-translate-y-1 lg:grid-cols-[1.05fr_1fr]"
+    >
+      {demo && (
+        <a
+          href={demo}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="absolute inset-0 z-0"
+          aria-label={`View live demo of ${name}`}
+        />
+      )}
+
+      <div className="pointer-events-none relative aspect-[16/10] bg-surface lg:aspect-auto lg:min-h-full">
         {failed ? (
           <div className="grid h-full w-full place-items-center bg-accent-gradient/20 px-6 text-center font-display text-2xl font-semibold text-white/70">
             {name}
@@ -32,8 +44,11 @@ export default function ProjectCard({ project }: { project: Project }) {
         )}
       </div>
 
-      <div className="flex flex-col p-7">
-        <h3 className="font-display text-2xl font-semibold text-white">{name}</h3>
+      <div className="pointer-events-none relative z-10 flex flex-col p-7">
+        <h3 className="font-display text-2xl font-semibold text-white transition-colors group-hover:text-accent-blue">
+          {name}
+        </h3>
+        
         <p className="mt-3 text-sm leading-relaxed text-slate-300">{description}</p>
 
         <ul className="mt-5 space-y-2">
@@ -51,12 +66,13 @@ export default function ProjectCard({ project }: { project: Project }) {
           ))}
         </div>
 
-        <div className="mt-auto flex flex-wrap gap-3 pt-7">
+        <div className="pointer-events-auto mt-auto flex flex-wrap gap-3 pt-7">
           {demo && (
             <ButtonLink href={demo} external>
               <ExternalLink size={16} aria-hidden /> Live demo
             </ButtonLink>
           )}
+          
           <ButtonLink href={repo} variant="ghost" external>
             <GithubIcon size={16} /> Repository
           </ButtonLink>
