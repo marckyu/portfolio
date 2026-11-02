@@ -2,21 +2,6 @@ import type { Project } from "../types";
 
 export const projects: Project[] = [
   {
-    slug: "interactive-resume",
-    name: "Interactive Web Resume",
-    description:
-      "A custom-built, responsive web resume highlighting my dual background in IT and automotive electronics. Built from scratch with modern CSS animations and a premium dark-mode aesthetic.",
-    image: "/images/projects/resume-preview.webp",
-    tech: ["HTML5", "CSS3", "Vanilla JS", "Lucide Icons", "Vercel"],
-    features: [
-      "Fully responsive layout with custom CSS keyframe animations",
-      "Dark mode aesthetic with glassmorphism UI",
-      "Optimized for performance and print-ready formatting",
-    ],
-    demo: "https://projectresume-me.vercel.app/",
-    repo: "https://github.com/marckyu/project_resume",
-  },
-  {
     slug: "sjc-lost-found",
     name: "SJC Lost & Found",
     description:
@@ -34,6 +19,21 @@ export const projects: Project[] = [
     demo: "https://sjc-lost-found.vercel.app",
   },
   {
+    slug: "interactive-resume",
+    name: "Interactive Web Resume",
+    description:
+      "A custom-built, responsive web resume highlighting my dual background in IT and automotive electronics. Built from scratch with modern CSS animations and a premium dark-mode aesthetic.",
+    image: "/images/projects/resume-preview.webp",
+    tech: ["HTML5", "CSS3", "Vanilla JS", "Lucide Icons", "Vercel"],
+    features: [
+      "Fully responsive layout with custom CSS keyframe animations",
+      "Dark mode aesthetic with glassmorphism UI",
+      "Optimized for performance and print-ready formatting",
+    ],
+    demo: "https://projectresume-me.vercel.app/",
+    repo: "https://github.com/marckyu/project_resume",
+  },
+  {
     slug: "biosphere",
     name: "BioSphere",
     description:
@@ -47,6 +47,6 @@ export const projects: Project[] = [
       "Live search filter and scroll reveal animations",
     ],
     demo: "https://biosphere-navy.vercel.app/",
-    repo: "https://github.com/shanetalusan0-web/biosphere", // 👈 Naka-update na!
+    repo: "https://github.com/shanetalusan0-web/biosphere",
   },
 ];

@@ -32,15 +32,17 @@ export default function Projects() {
         initial="hidden"
         whileInView="show"
         viewport={{ once: false, amount: 0.1 }}
-        // 👇 Inayos natin ang grid para maging pantay-pantay silang tatlo (3 columns)
         className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 items-stretch"
       >
         {projects.map((project, index) => {
+          // Ang unang project (SJC) ay lalapad (2 columns), tapos ang iba ay 1 column
+          const isLarge = index === 0;
+
           return (
             <motion.div 
               key={project.slug || index} 
               variants={item}
-              className="h-full"
+              className={`h-full ${isLarge ? "md:col-span-2" : "md:col-span-1"}`}
             >
               <ProjectCard project={project} />
             </motion.div>
