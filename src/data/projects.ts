@@ -33,4 +33,20 @@ export const projects: Project[] = [
     repo: "https://github.com/marckyu/sjc-lost-found",
     demo: "https://sjc-lost-found.vercel.app",
   },
+  {
+    slug: "biosphere",
+    name: "BioSphere",
+    description:
+      "An educational website translating research on biodiversity loss into an accessible digital resource. Features interactive case studies, a 20-question quiz, and a dynamic world map.",
+    image: "/images/projects/biosphere-preview.webp",
+    tech: ["HTML5", "CSS3", "Vanilla JS", "Leaflet.js", "Vercel"],
+    features: [
+      "Interactive map with custom animated markers using Leaflet.js",
+      "20-question quiz with dynamic scoring and confetti on perfect score",
+      "Dark mode toggle with localStorage persistence",
+      "Live search filter and scroll reveal animations",
+    ],
+    demo: "https://biosphere-navy.vercel.app/",
+    repo: "https://github.com/shanetalusan0-web/biosphere", // 👈 Naka-update na!
+  },
 ];
