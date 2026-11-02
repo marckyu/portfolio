@@ -3,13 +3,18 @@ import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } fro
 import type { MotionValue } from "framer-motion";
 
 const shapes = [
-  { className: "left-[-10%] top-[10%] h-[400px] w-[400px] bg-accent-blue/15", depth: 0.8 },
-  { className: "bottom-[15%] right-[-5%] h-[300px] w-[300px] bg-accent-violet/15", depth: 1.6 },
-  { className: "left-[30%] top-[50%] h-[250px] w-[250px] bg-accent-blue/10", depth: 2.4 },
-  { className: "right-[20%] top-[-5%] h-[200px] w-[200px] bg-accent-violet/10", depth: 3.2 },
+  { className: "left-[-10%] top-[10%] h-[400px] w-[400px] bg-[#4f8cff]/15", depth: 0.8 },
+  { className: "bottom-[15%] right-[-5%] h-[300px] w-[300px] bg-[#8b5cf6]/15", depth: 1.6 },
+  { className: "left-[30%] top-[50%] h-[250px] w-[250px] bg-[#4f8cff]/10", depth: 2.4 },
+  { className: "right-[20%] top-[-5%] h-[200px] w-[200px] bg-[#8b5cf6]/10", depth: 3.2 },
 ];
 
-interface ShapeProps { className: string; depth: number; x: MotionValue<number>; y: MotionValue<number>; }
+interface ShapeProps { 
+  className: string; 
+  depth: number; 
+  x: MotionValue<number>; 
+  y: MotionValue<number>; 
+}
 
 function Shape({ className, depth, x, y }: ShapeProps) {
   const tx = useTransform(x, (v) => v * depth);
@@ -23,8 +28,7 @@ function Shape({ className, depth, x, y }: ShapeProps) {
   );
 }
 
-/** Soft glows behind the page that drift slightly with the mouse. Static on touch and reduced motion. */
-export default function BackgroundShapes() {
+export default function BackgroundShapes({ isLoading = false }: { isLoading?: boolean }) {
   const reduce = useReducedMotion();
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
@@ -42,10 +46,18 @@ export default function BackgroundShapes() {
   }, [reduce, mx, my]);
 
   return (
-    <>
+    <motion.div
+      initial={false}
+      animate={{
+        filter: isLoading ? "blur(20px) brightness(0.5)" : "blur(0px) brightness(1)",
+        scale: isLoading ? 1.1 : 1,
+      }}
+      transition={{ duration: 1.2, ease: "easeOut" }}
+      className="fixed inset-0 -z-10 pointer-events-none"
+    >
       {shapes.map((s) => (
         <Shape key={s.className} className={s.className} depth={s.depth} x={x} y={y} />
       ))}
-    </>
+    </motion.div>
   );
 }

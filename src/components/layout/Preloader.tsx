@@ -1,14 +1,13 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { markIntroSeen } from "../../lib/intro";
 
-const MIN_MS = 1600; // shortest the intro is shown
-const MAX_MS = 3500; // never wait longer than this for fonts
-
-const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+const MIN_MS = 1600;
+const MAX_MS = 3500;
 
 export default function Preloader({ onFinish }: { onFinish: () => void }) {
   const done = useRef(false);
+  const [progress, setProgress] = useState(0);
 
   const finish = useCallback(() => {
     if (done.current) return;
@@ -17,72 +16,98 @@ export default function Preloader({ onFinish }: { onFinish: () => void }) {
     onFinish();
   }, [onFinish]);
 
-  // Keep the page from scrolling while the intro is up
+  // Lock scroll while preloader is up
   useEffect(() => {
-    const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = previous; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, []);
 
-  // Finish after the minimum time AND once fonts are ready; any click or key skips
+  // Fake progress bar + minimum wait
   useEffect(() => {
-    let active = true;
-    const fonts = document.fonts?.ready
-      ? Promise.race([document.fonts.ready, wait(MAX_MS)])
-      : Promise.resolve();
-    Promise.all([wait(MIN_MS), fonts]).then(() => active && finish());
+    const start = performance.now();
+    let raf: number;
 
-    const skip = () => finish();
-    window.addEventListener("pointerdown", skip);
-    window.addEventListener("keydown", skip);
+    const tick = () => {
+      const elapsed = performance.now() - start;
+      // Asymptotic progress towards 100%
+      const p = Math.min(100, (elapsed / MIN_MS) * 100);
+      setProgress(p);
+
+      if (elapsed < MIN_MS) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        setProgress(100);
+        // Small delay after reaching 100% before exiting
+        setTimeout(finish, 300);
+      }
+    };
+
+    raf = requestAnimationFrame(tick);
+    
+    // Fail-safe max wait
+    const maxTimer = setTimeout(finish, MAX_MS);
+
     return () => {
-      active = false;
-      window.removeEventListener("pointerdown", skip);
-      window.removeEventListener("keydown", skip);
+      cancelAnimationFrame(raf);
+      clearTimeout(maxTimer);
     };
   }, [finish]);
 
+  // Framer Motion variants
+  const containerVariants = {
+    exit: { y: "-100%", transition: { duration: 0.8, ease: [0.76, 0, 0.24, 1] as const } },
+  };
+
+  const textVariants = {
+    initial: { y: 50, opacity: 0 },
+    animate: { y: 0, opacity: 1, transition: { duration: 0.8, ease: [0.33, 1, 0.68, 1] as const } },
+  };
+
   return (
     <motion.div
-      aria-hidden="true"
-      className="fixed inset-0 z-[200] grid place-items-center overflow-hidden bg-ink"
-      initial={{ y: 0 }}
-      exit={{ y: "-100%" }}
-      transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
+      className="fixed inset-0 z-100 flex flex-col items-center justify-center bg-[#07070b] text-white"
+      variants={containerVariants}
+      exit="exit"
     >
-      <div className="pointer-events-none absolute h-80 w-80 rounded-full bg-accent-violet/20 blur-[100px]" />
+      {/* Background subtle glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(79,140,255,0.08)_0%,transparent_50%)]" />
 
-      <div className="relative flex flex-col items-center">
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          className="text-center"
+      {/* Monogram / Text */}
+      <div className="relative overflow-hidden mb-8 flex gap-2">
+        <motion.span
+          variants={textVariants}
+          initial="initial"
+          animate="animate"
+          className="font-[Space_Grotesk,sans-serif] text-6xl font-bold tracking-tighter sm:text-8xl"
         >
-          <p className="font-display text-6xl font-bold tracking-tight text-white">
-            JM<span className="text-accent-blue">.</span>
-          </p>
-          <p className="mt-3 text-sm text-muted">AI-Augmented Developer</p>
-        </motion.div>
-
-        <div className="mt-8 h-px w-56 overflow-hidden bg-white/10">
-          <motion.div
-            className="h-full origin-left bg-accent-gradient"
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ duration: MIN_MS / 1000, ease: "easeInOut" }}
-          />
-        </div>
+          J
+        </motion.span>
+        <motion.span
+          variants={textVariants}
+          initial="initial"
+          animate="animate"
+          transition={{ delay: 0.1 }}
+          className="font-[Space_Grotesk,sans-serif] text-6xl font-bold tracking-tighter text-accent-blue sm:text-8xl"
+        >
+          M
+        </motion.span>
       </div>
 
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.8, duration: 0.5 }}
-        className="absolute bottom-8 text-xs text-muted"
-      >
-        Click or press any key to skip
-      </motion.p>
+      {/* Progress Bar */}
+      <div className="relative h-0.5 w-48 overflow-hidden rounded-full bg-white/10">
+        <motion.div
+          className="absolute inset-y-0 left-0 bg-linear-to-r from-accent-blue to-accent-violet"
+          style={{ width: `${progress}%` }}
+          layout
+        />
+      </div>
+      
+      {/* Percentage text */}
+      <div className="mt-4 font-mono text-xs tracking-widest text-white/40">
+        {Math.round(progress)}%
+      </div>
     </motion.div>
   );
 }

@@ -1,73 +1,46 @@
-import { useState } from "react";
-import { tech, techGroups } from "../../data/tech";
-import type { TechLevel } from "../../types";
-import GlassCard from "../ui/GlassCard";
-import Reveal from "../ui/Reveal";
+import { motion } from "framer-motion";
 import Section from "../ui/Section";
-import TechBadge from "../ui/TechBadge";
 
-const dot: Record<TechLevel, string> = {
-  used: "bg-accent-blue",
-  familiar: "bg-accent-violet",
-  learning: "bg-amber-300",
-};
+const stack = ["React", "TypeScript", "Tailwind CSS", "Node.js", "Framer Motion", "Next.js", "Vite", "Git"];
 
 export default function TechStack() {
-  const [active, setActive] = useState<TechLevel | null>(null);
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.05 }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, scale: 0.8, y: 10 },
+    show: { 
+      opacity: 1, 
+      scale: 1, 
+      y: 0, 
+      transition: { type: "spring" as const, stiffness: 300, damping: 20 } 
+    }
+  };
 
   return (
-    <Section
-      id="stack"
-      title="Technology stack"
-      subtitle="Grouped by how I've actually used each one, so you can tell shipped work from learning."
-    >
-      <div role="group" aria-label="Highlight technologies by how I use them" className="mb-8 flex flex-wrap gap-2">
-        {techGroups.map((g) => {
-          const on = active === g.level;
-          return (
-            <button
-              key={g.level}
-              type="button"
-              aria-pressed={on}
-              onClick={() => setActive(on ? null : g.level)}
-              className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition ${
-                on
-                  ? "border-white bg-white font-medium text-ink"
-                  : "border-line bg-white/5 text-slate-200 hover:-translate-y-0.5 hover:bg-white/10"
-              }`}
-            >
-              <span className={`h-2 w-2 rounded-full ${dot[g.level]}`} aria-hidden />
-              {g.title}
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="grid gap-5 md:grid-cols-3">
-        {techGroups.map((group, i) => (
-          <Reveal key={group.level} delay={i * 0.08} className="h-full">
-            <div
-              className={`h-full transition duration-500 ${
-                active && active !== group.level ? "opacity-25 grayscale" : ""
-              }`}
-            >
-              <GlassCard className="h-full p-6">
-                <h3 className="font-display text-lg font-semibold text-white">{group.title}</h3>
-                <p className="mb-5 mt-1 text-sm text-muted">{group.blurb}</p>
-                <ul className="flex flex-wrap gap-2">
-                  {tech
-                    .filter((t) => t.level === group.level)
-                    .map((t) => (
-                      <li key={t.name}>
-                        <TechBadge name={t.name} level={t.level} />
-                      </li>
-                    ))}
-                </ul>
-              </GlassCard>
-            </div>
-          </Reveal>
+    <Section id="stack" title="My Stack" subtitle="Technologies I use to build things.">
+      <motion.div 
+        variants={container}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: false, amount: 0.1 }}
+        className="flex flex-wrap gap-3 mt-8"
+      >
+        {stack.map((tech) => (
+          <motion.div 
+            key={tech}
+            variants={item}
+            className="px-5 py-2.5 bg-[#0a0a10] border border-white/10 rounded-full text-white font-mono text-sm hover:border-[#4f8cff] hover:bg-[#4f8cff]/10 transition-colors cursor-default"
+          >
+            {tech}
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </Section>
   );
 }

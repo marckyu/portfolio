@@ -1,22 +1,52 @@
+import { motion } from "framer-motion";
 import { projects } from "../../data/projects";
 import ProjectCard from "../ui/ProjectCard";
-import Reveal from "../ui/Reveal";
 import Section from "../ui/Section";
 
 export default function Projects() {
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.15 }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 30 },
+    show: { 
+      opacity: 1, 
+      y: 0,
+      transition: { type: "spring" as const, stiffness: 100, damping: 20 }
+    }
+  };
+
   return (
     <Section
-      id="projects"
+      id="projects" 
       title="Featured projects"
       subtitle="Things I've built. New projects get added here as I ship them."
     >
-      <div className="grid gap-8">
-        {projects.map((project) => (
-          <Reveal key={project.slug}>
-            <ProjectCard project={project} />
-          </Reveal>
-        ))}
-      </div>
+      <motion.div 
+        variants={container}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: false, amount: 0.1 }}
+        className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 items-start"
+      >
+        {projects.map((project, index) => {
+          const isLarge = index === 0 || index === 3;
+          return (
+            <motion.div 
+              key={project.slug || index} 
+              variants={item}
+              className={isLarge ? "md:col-span-2 h-full" : "md:col-span-1 h-full"}
+            >
+              <ProjectCard project={project} />
+            </motion.div>
+          );
+        })}
+      </motion.div>
     </Section>
   );
 }

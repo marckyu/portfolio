@@ -52,7 +52,8 @@
 @layer base {
   html {
     scroll-behavior: smooth;
-    scroll-padding-top: 5rem;
+    scroll-padding-top: 7.5rem;
+    scrollbar-gutter: stable;
   }
 
   /* Background lives on body only, so the canvas takes it over.
@@ -249,4 +250,8 @@
     .glass,
     .glass:hover { transition: none !important; }
   }
+}
+
+section {
+  scroll-margin-top: 120px; 
 }

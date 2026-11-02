@@ -2,6 +2,21 @@ import type { Project } from "../types";
 
 export const projects: Project[] = [
   {
+    slug: "interactive-resume",
+    name: "Interactive Web Resume",
+    description:
+      "A custom-built, responsive web resume highlighting my dual background in IT and automotive electronics. Built with modern web technologies for smooth scrolling and a premium dark-mode aesthetic.",
+    image: "/images/projects/resume-preview.webp",
+    tech: ["React", "TypeScript", "Tailwind CSS", "Vercel"],
+    features: [
+      "Fully responsive layout with custom animations",
+      "Dark mode aesthetic with glassmorphism UI",
+      "Optimized for performance and SEO",
+    ],
+    demo: "https://projectresume-me.vercel.app/",
+    repo: "https://github.com/marckyu/project_resume",
+  },
+  {
     slug: "sjc-lost-found",
     name: "SJC Lost & Found",
     description:

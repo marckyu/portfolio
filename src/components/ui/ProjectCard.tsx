@@ -1,57 +1,89 @@
-import { useState } from "react";
-import { Check, ExternalLink } from "lucide-react";
 import type { Project } from "../../types";
-import ButtonLink from "./ButtonLink";
-import GithubIcon from "./GithubIcon";
-import GlassCard from "./GlassCard";
-import TechBadge from "./TechBadge";
+import { ArrowUpRight, Code2, Globe, CheckCircle2, Folder } from "lucide-react";
 
 export default function ProjectCard({ project }: { project: Project }) {
-  const [failed, setFailed] = useState(false);
-  const { name, description, image, tech, features, repo, demo } = project;
+  const isResume = project.slug === "interactive-resume";
 
   return (
-    <GlassCard as="article" className="group relative grid overflow-hidden lg:grid-cols-[1.05fr_1fr]">
-      {demo && (
-        <a href={demo} target="_blank" rel="noopener noreferrer" className="absolute inset-0 z-0" aria-label={`View live demo of ${name}`} />
-      )}
+    <div className={`group relative flex flex-col w-full rounded-3xl border transition-all duration-500 overflow-hidden p-6 md:p-8 
+      ${isResume ? 'bg-linear-to-br from-[#0a0a10] to-[#4f8cff]/10 border-[#4f8cff]/20 hover:border-[#4f8cff]' : 'bg-[#0a0a10] border-white/5 hover:border-white/20'}`}
+    >
+      <div className="absolute top-0 right-0 w-48 h-48 bg-[#4f8cff]/10 blur-[60px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
-      <div className="pointer-events-none relative aspect-[16/10] overflow-hidden bg-surface lg:aspect-auto lg:min-h-full">
-        {failed ? (
-          <div className="grid h-full w-full place-items-center bg-accent-gradient/20 px-6 text-center font-display text-2xl font-semibold text-white/70">{name}</div>
-        ) : (
-          <img src={image} alt={`Screenshot of ${name}`} width={1600} height={1000} loading="lazy" decoding="async" onError={() => setFailed(true)} className="absolute inset-0 h-full w-full object-cover object-top transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-105" />
+      <div className="relative z-10 flex flex-col gap-5">
+        
+        {/* Header Icons */}
+        <div className="flex items-center justify-between">
+          <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:scale-110 group-hover:bg-[#4f8cff]/20 group-hover:border-[#4f8cff]/30 transition-all duration-300">
+            {isResume ? (
+              <Globe className="w-5 h-5 text-[#4f8cff] transition-colors" />
+            ) : (
+              <Folder className="w-5 h-5 text-gray-400 group-hover:text-[#4f8cff] transition-colors" />
+            )}
+          </div>
+          
+          <div className="flex gap-2">
+            {project.repo && (
+              <a 
+                href={project.repo} 
+                target="_blank" 
+                rel="noreferrer"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white transition-all duration-300 border border-transparent hover:border-white/10"
+                title="View Source Code"
+              >
+                <Code2 className="w-4 h-4" />
+                <span className="text-xs font-medium hidden sm:block">Code</span>
+              </a>
+            )}
+            {project.demo && (
+              <a 
+                href={project.demo} 
+                target="_blank" 
+                rel="noreferrer"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#4f8cff]/10 hover:bg-[#4f8cff]/20 text-[#4f8cff] hover:text-white transition-all duration-300 border border-[#4f8cff]/20 hover:border-[#4f8cff]/40"
+                title="View Live Demo"
+              >
+                <ArrowUpRight className="w-4 h-4" />
+                <span className="text-xs font-medium hidden sm:block">Live</span>
+              </a>
+            )}
+          </div>
+        </div>
+
+        {/* Title & Description */}
+        <div>
+          <h3 className="text-2xl font-bold font-[Space_Grotesk] text-white mb-2 group-hover:text-[#4f8cff] transition-colors">
+            {project.name}
+          </h3>
+          <p className="text-sm text-gray-400 leading-relaxed line-clamp-3">
+            {project.description}
+          </p>
+        </div>
+
+        {/* Features - Compact spacing */}
+        {project.features && (
+          <ul className="space-y-2">
+            {project.features.slice(0, 3).map((feature, i) => (
+              <li key={i} className="flex items-start gap-2 text-sm text-gray-300">
+                <CheckCircle2 className="w-4 h-4 text-[#4f8cff] shrink-0 mt-0.5" />
+                <span className="leading-snug line-clamp-1">{feature}</span>
+              </li>
+            ))}
+          </ul>
         )}
-      </div>
 
-      <div className="pointer-events-none relative z-10 flex flex-col p-7">
-        <h3 className="font-display text-2xl font-semibold text-white transition-colors duration-300 group-hover:text-accent-blue">{name}</h3>
-        <p className="mt-3 text-sm leading-relaxed text-slate-300">{description}</p>
-
-        <ul className="mt-5 space-y-2">
-          {features.map((f) => (
-            <li key={f} className="flex gap-2 text-sm leading-relaxed text-muted">
-              <Check size={16} className="mt-0.5 shrink-0 text-accent-blue" aria-hidden />
-              {f}
-            </li>
+        {/* Tech Stack */}
+        <div className="flex flex-wrap gap-2 pt-2">
+          {project.tech?.map((tech) => (
+            <span 
+              key={tech} 
+              className="px-3 py-1 bg-white/5 border border-white/5 rounded-md text-xs font-mono text-gray-300 backdrop-blur-sm"
+            >
+              {tech}
+            </span>
           ))}
-        </ul>
-
-        <div className="mt-5 flex flex-wrap gap-2">
-          {tech.map((t) => <TechBadge key={t} name={t} />)}
-        </div>
-
-        <div className="pointer-events-auto mt-auto flex flex-wrap gap-3 pt-7">
-          {demo && (
-            <ButtonLink href={demo} external>
-              <ExternalLink size={16} aria-hidden /> Live demo
-            </ButtonLink>
-          )}
-          <ButtonLink href={repo} variant="ghost" external>
-            <GithubIcon size={16} /> Repository
-          </ButtonLink>
         </div>
       </div>
-    </GlassCard>
+    </div>
   );
 }

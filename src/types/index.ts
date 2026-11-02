@@ -7,7 +7,7 @@ export interface Project {
   image: string;
   tech: string[];
   features: string[];
-  repo: string;
+  repo?: string;
   demo?: string;
 }
 
