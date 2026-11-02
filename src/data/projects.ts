@@ -5,13 +5,13 @@ export const projects: Project[] = [
     slug: "interactive-resume",
     name: "Interactive Web Resume",
     description:
-      "A custom-built, responsive web resume highlighting my dual background in IT and automotive electronics. Built with modern web technologies for smooth scrolling and a premium dark-mode aesthetic.",
+      "A custom-built, responsive web resume highlighting my dual background in IT and automotive electronics. Built from scratch with modern CSS animations and a premium dark-mode aesthetic.",
     image: "/images/projects/resume-preview.webp",
-    tech: ["React", "TypeScript", "Tailwind CSS", "Vercel"],
+    tech: ["HTML5", "CSS3", "Vanilla JS", "Lucide Icons", "Vercel"],
     features: [
-      "Fully responsive layout with custom animations",
+      "Fully responsive layout with custom CSS keyframe animations",
       "Dark mode aesthetic with glassmorphism UI",
-      "Optimized for performance and SEO",
+      "Optimized for performance and print-ready formatting",
     ],
     demo: "https://projectresume-me.vercel.app/",
     repo: "https://github.com/marckyu/project_resume",
