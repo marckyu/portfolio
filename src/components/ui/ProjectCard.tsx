@@ -11,44 +11,21 @@ export default function ProjectCard({ project }: { project: Project }) {
   const { name, description, image, tech, features, repo, demo } = project;
 
   return (
-    <GlassCard
-      as="article"
-      className="group relative grid overflow-hidden transition-transform duration-300 hover:-translate-y-1 lg:grid-cols-[1.05fr_1fr]"
-    >
+    <GlassCard as="article" className="group relative grid overflow-hidden lg:grid-cols-[1.05fr_1fr]">
       {demo && (
-        <a
-          href={demo}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="absolute inset-0 z-0"
-          aria-label={`View live demo of ${name}`}
-        />
+        <a href={demo} target="_blank" rel="noopener noreferrer" className="absolute inset-0 z-0" aria-label={`View live demo of ${name}`} />
       )}
 
-      <div className="pointer-events-none relative aspect-[16/10] bg-surface lg:aspect-auto lg:min-h-full">
+      <div className="pointer-events-none relative aspect-[16/10] overflow-hidden bg-surface lg:aspect-auto lg:min-h-full">
         {failed ? (
-          <div className="grid h-full w-full place-items-center bg-accent-gradient/20 px-6 text-center font-display text-2xl font-semibold text-white/70">
-            {name}
-          </div>
+          <div className="grid h-full w-full place-items-center bg-accent-gradient/20 px-6 text-center font-display text-2xl font-semibold text-white/70">{name}</div>
         ) : (
-          <img
-            src={image}
-            alt={`Screenshot of ${name}`}
-            width={1600}
-            height={1000}
-            loading="lazy"
-            decoding="async"
-            onError={() => setFailed(true)}
-            className="absolute inset-0 h-full w-full object-cover object-top"
-          />
+          <img src={image} alt={`Screenshot of ${name}`} width={1600} height={1000} loading="lazy" decoding="async" onError={() => setFailed(true)} className="absolute inset-0 h-full w-full object-cover object-top transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-105" />
         )}
       </div>
 
       <div className="pointer-events-none relative z-10 flex flex-col p-7">
-        <h3 className="font-display text-2xl font-semibold text-white transition-colors group-hover:text-accent-blue">
-          {name}
-        </h3>
-        
+        <h3 className="font-display text-2xl font-semibold text-white transition-colors duration-300 group-hover:text-accent-blue">{name}</h3>
         <p className="mt-3 text-sm leading-relaxed text-slate-300">{description}</p>
 
         <ul className="mt-5 space-y-2">
@@ -61,9 +38,7 @@ export default function ProjectCard({ project }: { project: Project }) {
         </ul>
 
         <div className="mt-5 flex flex-wrap gap-2">
-          {tech.map((t) => (
-            <TechBadge key={t} name={t} />
-          ))}
+          {tech.map((t) => <TechBadge key={t} name={t} />)}
         </div>
 
         <div className="pointer-events-auto mt-auto flex flex-wrap gap-3 pt-7">
@@ -72,7 +47,6 @@ export default function ProjectCard({ project }: { project: Project }) {
               <ExternalLink size={16} aria-hidden /> Live demo
             </ButtonLink>
           )}
-          
           <ButtonLink href={repo} variant="ghost" external>
             <GithubIcon size={16} /> Repository
           </ButtonLink>
