@@ -14,7 +14,7 @@ export default function About() {
               I am a working student pursuing a <strong className="text-white">BS in Information Technology</strong>, with hands-on experience in both 12V automotive electronics and full-stack software development. 
             </p>
             <p>
-              I bridge the gap between hardware troubleshooting and modern web technologies. Using AI-augmented workflows, I build practical, reliable digital solutions—from full-stack web applications to interactive gaming systems. 
+              I bridge the gap between hardware troubleshooting and modern web technologies. Using AI-augmented workflows, I build practical, reliable digital solutions from full stack web applications to interactive gaming systems. 
             </p>
             <p>
               When I'm not building web apps or diagnosing car electrical faults, I'm constantly exploring new tools to optimize my workflow and ship code faster without sacrificing quality.
