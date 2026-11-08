@@ -40,13 +40,17 @@
   --dur-med: 250ms;
   --dur-slow: 400ms;
 
-
   --marquee-duration: 50s;
 }
 
 @keyframes marquee {
   from { transform: translate3d(0, 0, 0); }
   to { transform: translate3d(-50%, 0, 0); }
+}
+
+@keyframes scanline {
+  0% { transform: translateY(-100vh); }
+  100% { transform: translateY(100vh); }
 }
 
 @layer base {
@@ -56,8 +60,6 @@
     scrollbar-gutter: stable;
   }
 
-  /* Background lives on body only, so the canvas takes it over.
-     If html also had a background, the fixed -z-10 glow shapes would be hidden behind it. */
   body {
     margin: 0;
     min-height: 100vh;
@@ -71,6 +73,19 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    
+    /* 👇 Normal default cursor */
+    cursor: default;
+  }
+
+  /* Normal pointing hand sa links at buttons */
+  a, button, [role="button"], input[type="submit"] {
+    cursor: pointer;
+  }
+
+  /* I-beam text cursor sa inputs */
+  input[type="text"], input[type="email"], textarea {
+    cursor: text;
   }
 
   h1, h2, h3, h4 {
@@ -83,7 +98,6 @@
     color: #fff;
   }
 
-  /* Scrollbar (desktop) */
   @media (pointer: fine) {
     ::-webkit-scrollbar { width: 10px; height: 10px; }
     ::-webkit-scrollbar-track { background: var(--bg-1); }
@@ -98,7 +112,6 @@
     html { scrollbar-color: rgba(255, 255, 255, 0.18) var(--bg-1); scrollbar-width: thin; }
   }
 
-  /* Focus: visible and consistent */
   :focus-visible {
     outline: 2px solid var(--accent-blue);
     outline-offset: 3px;
@@ -111,9 +124,8 @@
 }
 
 @layer components {
-  /* Glass card */
   .glass {
-    position: relative; /* anchors the ring below; .absolute / .fixed still win */
+    position: relative;
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03));
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
@@ -152,7 +164,6 @@
     opacity: 0.6;
   }
 
-  /* Gradients */
   .bg-accent-gradient {
     background-image: linear-gradient(135deg, var(--accent-blue), var(--accent-violet));
   }
@@ -185,18 +196,14 @@
     backface-visibility: hidden;
   }
 
-  /* Pause on hover only (never on focus), so closing the lightbox,
-     which returns focus to a card, always resumes the loop. */
   @media (hover: hover) and (pointer: fine) {
     .marquee:hover .marquee-track { animation-play-state: paused; }
   }
 
-  /* Pause while the lightbox is open; resumes from the same spot */
   .marquee.is-paused .marquee-track {
     animation-play-state: paused;
   }
 
-  /* Portrait card */
   .portrait-card {
     transform-origin: center;
     transform: rotate(var(--rotation, 0deg)) translateY(var(--offset, 0px));
@@ -207,7 +214,6 @@
     z-index: 2;
   }
 
-  /* Lightbox helpers */
   .lightbox-backdrop {
     background: rgba(4, 4, 8, 0.82);
     backdrop-filter: blur(16px) saturate(120%);
@@ -254,4 +260,31 @@
 
 section {
   scroll-margin-top: 120px; 
+}
+
+.cyber-scanline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(to right, transparent, rgba(79, 140, 255, 0.5), transparent);
+  box-shadow: 0 0 20px rgba(79, 140, 255, 0.5);
+  animation: scanline 3s linear infinite;
+  z-index: 50;
+  pointer-events: none;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
 }

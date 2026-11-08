@@ -3,16 +3,16 @@ import type { SocialLink } from "../types";
 export const site = {
   name: "John Marc F. Asuncion",
   shortName: "John Marc",
-  role: "AI-Augmented Developer",
+  role: "Learning Full-Stack Development",
   specialties: ["Web Development", "Game Development"],
   intro:
-    "IT student building full-stack web apps and learning game development, using AI to move faster while understanding every line I ship.",
+    "An IT student currently learning the full development flow—from planning and system architecture to implementation and AI-assisted debugging. I'm building projects to master how everything connects.",
   github: "https://github.com/marckyu",
   links: [
     { label: "GitHub", href: "https://github.com/marckyu" },
     { label: "LinkedIn", href: "https://www.linkedin.com/in/john-marc-asuncion-704625386/" },
   ] as SocialLink[],
-  email: "", // TODO: add your email before publishing
+  email: "johnmarc.asuncion@gmail.com",
   nav: [
     { id: "about", label: "About" },
     { id: "expertise", label: "Expertise" },

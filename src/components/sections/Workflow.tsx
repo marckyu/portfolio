@@ -1,51 +1,56 @@
-import { ShieldCheck } from "lucide-react";
 import { workflow } from "../../data/workflow";
-import GlassCard from "../ui/GlassCard";
 import Reveal from "../ui/Reveal";
 import Section from "../ui/Section";
+import { User, Bot } from "lucide-react";
 
 export default function Workflow() {
   return (
-    <Section
-      id="workflow"
-      title="How I work with AI"
-      subtitle="Seven steps from idea to deployed app. AI helps at each one, but the decisions stay with me."
+    <Section 
+      id="workflow" 
+      title="My AI-Augmented Workflow" 
+      subtitle="How I combine my system understanding with AI-assisted execution."
     >
-      {/* Numbers are appropriate here because the steps really are a sequence */}
-      <ol className="relative space-y-5 border-l border-line pl-8 sm:pl-10">
+      <div className="mt-12 flex flex-col gap-4">
         {workflow.map((step, i) => (
-          <li key={step.title} className="relative">
-            <span className="absolute -left-12 top-5 grid h-8 w-8 place-items-center rounded-full bg-accent-gradient font-mono text-xs font-medium text-white ring-4 ring-ink sm:-left-14">
-              {i + 1}
-            </span>
-            <Reveal>
-              <GlassCard className="p-6">
-                <h3 className="font-display text-lg font-semibold text-white">{step.title}</h3>
-                <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <p className="text-xs font-medium text-accent-blue">What I do</p>
-                    <p className="mt-1 text-sm leading-relaxed text-slate-300">{step.you}</p>
+          <Reveal key={step.title} delay={i * 0.05}>
+            <div className="group relative grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-8 p-6 md:p-8 rounded-3xl bg-[#050508] border border-white/5 hover:border-[#4f8cff]/30 transition-all duration-300">
+              
+              <div className="lg:col-span-3 flex items-center gap-4">
+                <span className="text-3xl font-black font-[Space_Grotesk] text-white/10 group-hover:text-[#4f8cff]/30 transition-colors">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <h3 className="text-xl font-bold text-white font-[Space_Grotesk]">
+                  {step.title}
+                </h3>
+              </div>
+
+              <div className="lg:col-span-9 grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-[#4f8cff]/10 border border-[#4f8cff]/20 text-[#4f8cff] shrink-0 mt-0.5">
+                    <User size={16} />
                   </div>
                   <div>
-                    <p className="text-xs font-medium text-accent-violet">How AI helps</p>
-                    <p className="mt-1 text-sm leading-relaxed text-muted">{step.ai}</p>
+                    <p className="text-xs font-mono text-[#4f8cff] uppercase tracking-wider mb-1">I Handle</p>
+                    <p className="text-sm text-gray-300 leading-relaxed">{step.you}</p>
                   </div>
                 </div>
-              </GlassCard>
-            </Reveal>
-          </li>
-        ))}
-      </ol>
 
-      <Reveal className="mt-10">
-        <GlassCard className="flex gap-4 p-6">
-          <ShieldCheck size={22} className="mt-0.5 shrink-0 text-accent-blue" aria-hidden />
-          <p className="text-sm leading-relaxed text-slate-300 sm:text-base">
-            AI suggests and I decide. I read what it writes, test it, and change it. If I can't
-            explain a piece of code, it isn't finished.
-          </p>
-        </GlassCard>
-      </Reveal>
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-[#8b5cf6]/10 border border-[#8b5cf6]/20 text-[#8b5cf6] shrink-0 mt-0.5">
+                    <Bot size={16} />
+                  </div>
+                  <div>
+                    <p className="text-xs font-mono text-[#8b5cf6] uppercase tracking-wider mb-1">AI Assists</p>
+                    <p className="text-sm text-gray-400 leading-relaxed">{step.ai}</p>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </Reveal>
+        ))}
+      </div>
     </Section>
   );
 }

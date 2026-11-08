@@ -12,6 +12,7 @@ import Projects from "./components/sections/Projects";
 import Workflow from "./components/sections/Workflow";
 import LearningJourney from "./components/sections/LearningJourney";
 import Contact from "./components/sections/Contact";
+import Footer from "./components/layout/Footer";
 
 export default function App() {
   const [playing, setPlaying] = useState(true);
@@ -42,32 +43,38 @@ export default function App() {
       <BackgroundShapes isLoading={playing} />
       <ScrollProgress />
 
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {playing && <DevLoader key="devloader" onFinish={endIntro} />}
       </AnimatePresence>
 
-      {!playing && <Navbar />}
-      
-      <motion.main 
-        id="main" 
-        className="relative z-10 origin-top"
-        initial={{ opacity: 0, scale: 0.98, y: 10 }}
-        animate={{ 
-          opacity: playing ? 0 : 1, 
-          scale: playing ? 0.98 : 1,
-          y: playing ? 10 : 0
-        }}
-        transition={{ type: "spring", stiffness: 80, damping: 20, delay: 0.1 }}
-      >
-        <Hero />
-        <About />
-        <Expertise />
-        <TechStack />
-        <Projects />
-        <Workflow />
-        <LearningJourney />
-        <Contact />
-      </motion.main>
+      {!playing && (
+        <>
+          <Navbar />
+          
+          <motion.main 
+            id="main" 
+            className="relative z-10 origin-top"
+            initial={{ opacity: 0, scale: 0.95, y: 30, filter: "blur(8px)" }}
+            animate={{ 
+              opacity: playing ? 0 : 1, 
+              scale: playing ? 0.95 : 1,
+              y: playing ? 30 : 0,
+              filter: playing ? "blur(8px)" : "blur(0px)"
+            }}
+            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+          >
+            <Hero />
+            <About />
+            <Expertise />
+            <TechStack />
+            <Projects />
+            <Workflow />
+            <LearningJourney />
+            <Contact />
+            <Footer />
+          </motion.main>
+        </>
+      )}
     </div>
   );
 }
