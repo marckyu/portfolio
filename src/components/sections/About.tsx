@@ -83,7 +83,7 @@ export default function About() {
               A working student learning to bridge hardware troubleshooting and modern software.
             </h3>
             <p className="text-gray-400 text-base leading-relaxed mb-6">
-              I am currently pursuing a BS in Information Technology while gaining hands-on experience in 12V automotive electronics, accessory installation, and office records.
+              I am currently pursuing a BS in Information Technology while gaining hands on experience in 12V automotive electronics, accessory installation, and office records.
             </p>
             <p className="text-gray-400 text-base leading-relaxed mb-8">
               I'm actively learning the full system flow—how to plan projects, design the architecture, build with AI-augmented workflows, and debug efficiently. My goal is to master how everything connects, not just write code.

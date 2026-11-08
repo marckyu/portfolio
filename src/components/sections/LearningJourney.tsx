@@ -12,7 +12,7 @@ const statusConfig = {
 
 export default function LearningJourney() {
   return (
-    <Section id="learning" title="Learning Journey" subtitle="My continuous path to mastering full-stack development.">
+    <Section id="learning" title="Learning Journey" subtitle="My continuous path to mastering full stack development.">
       <div className="max-w-3xl mx-auto mt-12 relative border-l border-white/10 pl-8 md:pl-12 space-y-8">
         {learning.map((item, i) => {
           const config = statusConfig[item.status as keyof typeof statusConfig] || statusConfig.learning;

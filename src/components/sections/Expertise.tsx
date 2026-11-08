@@ -16,7 +16,7 @@ const services = [
   {
     icon: Cpu,
     title: "Hardware & AI Workflows",
-    desc: "12V automotive electronics troubleshooting and AI-augmented coding.",
+    desc: "12V automotive electronics troubleshooting and AI augmented coding.",
   },
 ];
 
