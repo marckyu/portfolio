@@ -7,7 +7,6 @@ import { Button } from "../ui/Button";
 import GithubIcon from "../ui/GithubIcon";
 import InfinitePortraits from "./InfinitePortraits";
 
-// 👇 Lazy load ang Lightbox para hindi bumigat ang initial load
 const Lightbox = lazy(() => import("../ui/Lightbox"));
 
 const containerVariants: Variants = {
@@ -65,14 +64,23 @@ export default function Hero() {
               <span className="text-xs font-mono text-gray-300 tracking-wider uppercase">Available for work</span>
             </motion.div>
 
-            <motion.h1 variants={itemVariants} className="text-4xl md:text-6xl lg:text-7xl font-bold font-[Space_Grotesk] leading-[1.1] tracking-tight">
-              <span className="block text-gray-400 text-lg md:text-2xl font-mono mb-2 font-normal">{site.name}</span>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">{site.role.split(" ")[0]}</span>
-              <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4f8cff] to-[#8b5cf6]">{site.role.split(" ")[1]}</span>
+            <motion.h1 variants={itemVariants} className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold font-[Space_Grotesk] leading-[1.1] tracking-tight">
+              <span className="block text-gray-400 text-lg md:text-2xl font-mono mb-2 font-normal">
+                {site.name}
+              </span>
+              {/* 👇 Unang salita (Learning) - Puti */}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 block">
+                {site.role.split(" ")[0]}
+              </span>
+              {/* 👇 Natitirang salita (AI-Augmented Developer) - Gradient */}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4f8cff] to-[#8b5cf6] block">
+                {site.role.split(" ").slice(1).join(" ")}
+              </span>
             </motion.h1>
 
-            <motion.p variants={itemVariants} className="mt-8 text-gray-300 text-base md:text-lg max-w-xl leading-relaxed font-medium">{site.intro}</motion.p>
+            <motion.p variants={itemVariants} className="mt-8 text-gray-300 text-base md:text-lg max-w-xl leading-relaxed font-medium">
+              {site.intro}
+            </motion.p>
 
             <motion.div variants={itemVariants} className="mt-10 flex flex-wrap items-center gap-4">
               <Button href="#projects">Explore Projects <ArrowDown size={16} /></Button>
@@ -85,7 +93,9 @@ export default function Hero() {
                 <ImageIcon size={16} /> View Photos
               </Button>
 
-              <Button href={site.github} variant="secondary" target="_blank" rel="noreferrer"><GithubIcon size={16} /> GitHub</Button>
+              <Button href={site.github} variant="secondary" target="_blank" rel="noreferrer">
+                <GithubIcon size={16} /> GitHub
+              </Button>
             </motion.div>
           </motion.div>
 
@@ -101,7 +111,6 @@ export default function Hero() {
                 <motion.div 
                   key={spec.id}
                   variants={itemVariants}
-                  // 👇 Solid background, walang backdrop-blur para walang lag
                   className="group relative p-6 md:p-8 rounded-3xl bg-[#0c0c12] border border-white/5 transition-all duration-300 ease-out hover:border-[#4f8cff]/40 hover:-translate-y-1 overflow-hidden shadow-2xl will-change-transform"
                 >
                   <div className="absolute inset-0 bg-gradient-to-br from-[#4f8cff]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
@@ -126,7 +135,7 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* 👇 Conditionally render ang Lightbox */}
+      {/* Lightbox */}
       {lightboxIndex !== null && (
         <Suspense fallback={null}>
           <Lightbox
