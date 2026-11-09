@@ -4,7 +4,7 @@ export const learning: LearningEntry[] = [
   {
     title: "HTML5 Semantic Structure",
     status: "experimenting",
-    note: "Building accessible, well-structured documents using modern HTML tags."
+    note: "Building accessible, well structured documents using modern HTML tags."
   },
   {
     title: "CSS Layouts & Animations",

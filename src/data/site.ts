@@ -6,7 +6,7 @@ export const site = {
   role: "Learning AI-Augmented Developer",
   specialties: ["Web Development", "Game Development"],
   intro:
-    "An IT student currently learning the full development flow—from planning and system architecture to implementation and AI-assisted debugging. I'm building projects to master how everything connects.",
+    "An IT student currently learning the full development flow from planning and system architecture to implementation and AI Assisted debugging. I'm building projects to master how everything connects.",
   github: "https://github.com/marckyu",
   links: [
     { label: "GitHub", href: "https://github.com/marckyu" },
