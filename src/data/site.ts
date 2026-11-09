@@ -3,10 +3,10 @@ import type { SocialLink } from "../types";
 export const site = {
   name: "John Marc F. Asuncion",
   shortName: "John Marc",
-  role: "Learning Full-Stack Development",
+  role: "Learning AI-Augmented Developer",
   specialties: ["Web Development", "Game Development"],
   intro:
-    "An IT student currently learning the full development flow from planning and system architecture to implementation and AI assisted debugging. I'm building projects to master how everything connects.",
+    "An IT student currently learning the full development flow—from planning and system architecture to implementation and AI-assisted debugging. I'm building projects to master how everything connects.",
   github: "https://github.com/marckyu",
   links: [
     { label: "GitHub", href: "https://github.com/marckyu" },
