@@ -12,7 +12,6 @@ import Projects from "./components/sections/Projects";
 import Workflow from "./components/sections/Workflow";
 import LearningJourney from "./components/sections/LearningJourney";
 import Contact from "./components/sections/Contact";
-import Footer from "./components/layout/Footer";
 
 export default function App() {
   const [playing, setPlaying] = useState(true);
@@ -71,7 +70,6 @@ export default function App() {
             <Workflow />
             <LearningJourney />
             <Contact />
-            <Footer />
           </motion.main>
         </>
       )}
