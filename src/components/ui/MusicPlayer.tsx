@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, } from "react";
 import { Play, Pause, SkipForward, Music2 } from "lucide-react";
 import { motion } from "framer-motion";
 
