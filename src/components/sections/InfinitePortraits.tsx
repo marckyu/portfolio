@@ -1,6 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useState } from "react";
 import type { Portrait } from "../../types";
 import { portraits } from "../../data/portraits";
+import Lightbox from "../ui/Lightbox";
 
 interface PortraitCardProps {
   item: Portrait;
@@ -13,22 +14,9 @@ function PortraitCard({ item, index, isDuplicate, onOpen }: PortraitCardProps) {
   const rotation = ((index % 5) - 2) * 1.5;
   const offset = ((index % 3) - 1) * 8;
 
-  // 👇 Fallback image gamit ang DOM manipulation imbes na useState
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    const target = e.currentTarget;
-    target.style.display = "none";
-    const parent = target.parentElement;
-    if (parent) {
-      const fallback = document.createElement("div");
-      fallback.className = "flex aspect-[3/4] w-full items-center justify-center bg-gradient-to-br from-[#4f8cff]/40 to-[#8b5cf6]/40 font-[Space_Grotesk,sans-serif] text-3xl font-semibold text-white";
-      fallback.innerText = "JM";
-      parent.appendChild(fallback);
-    }
-  };
-
   return (
     <li
-      className="portrait-card shrink-0 px-3"
+      className="portrait-card shrink-0 px-2"
       style={{
         "--rotation": `${rotation}deg`,
         "--offset": `${offset}px`,
@@ -36,14 +24,11 @@ function PortraitCard({ item, index, isDuplicate, onOpen }: PortraitCardProps) {
     >
       <button
         type="button"
-        onClick={(e) => {
-          e.preventDefault();
-          onOpen(index);
-        }}
+        onClick={() => onOpen(index)}
         tabIndex={isDuplicate ? -1 : 0}
-        aria-label={`Open photo: ${item.alt}`}
         aria-hidden={isDuplicate || undefined}
-        className="glass group relative block w-[200px] cursor-pointer overflow-hidden rounded-2xl text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f8cff] sm:w-[240px] will-change-transform"
+        aria-label={`Open photo: ${item.alt}`}
+        className="glass group relative block w-[240px] cursor-pointer overflow-hidden rounded-2xl text-left transition-transform duration-300 hover:scale-[1.03] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f8cff] sm:w-[280px]"
       >
         <img
           src={item.src}
@@ -53,7 +38,17 @@ function PortraitCard({ item, index, isDuplicate, onOpen }: PortraitCardProps) {
           loading="lazy"
           decoding="async"
           draggable={false}
-          onError={handleImageError}
+          onError={(e) => {
+            const target = e.currentTarget;
+            target.style.display = "none";
+            const parent = target.parentElement;
+            if (parent) {
+              const fallback = document.createElement("div");
+              fallback.className = "flex aspect-[3/4] w-full items-center justify-center bg-gradient-to-br from-[#4f8cff]/40 to-[#8b5cf6]/40 font-[Space_Grotesk,sans-serif] text-3xl font-semibold text-white";
+              fallback.innerText = "JM";
+              parent.appendChild(fallback);
+            }
+          }}
           className="aspect-[3/4] w-full object-cover"
           style={{ objectPosition: "center" }}
         />
@@ -68,50 +63,65 @@ interface InfinitePortraitsProps {
 }
 
 export default function InfinitePortraits({ onOpenPhoto, isPaused }: InfinitePortraitsProps) {
-  const marqueeRef = useRef<HTMLDivElement>(null);
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
 
-  useEffect(() => {
-    const marquee = marqueeRef.current;
-    if (!marquee) return;
+  const handleOpen = (index: number) => {
+    setOpenIndex(index);
+    onOpenPhoto(index);
+  };
 
-    if (isPaused) {
-      marquee.classList.add("is-paused");
-    } else {
-      marquee.classList.remove("is-paused");
-    }
-  }, [isPaused]);
+  const handleClose = () => {
+    setOpenIndex(null);
+    onOpenPhoto(-1);
+  };
 
   return (
-    <section aria-label="Photo gallery" className="relative py-10">
-      <div
-        ref={marqueeRef}
-        className="marquee overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]"
-      >
-        <div className="marquee-track flex py-8">
-          <ul className="flex" aria-label="Photos">
+    <section aria-label="Photo gallery" className="relative py-10 overflow-hidden">
+      {/* Zoom container para matakpan yung reset gap */}
+      <div className="marquee-container overflow-hidden scale-105">
+        <div 
+          className="flex w-max"
+          style={{
+            animation: isPaused ? "none" : "marquee-scroll 40s linear infinite",
+            willChange: "transform",
+          }}
+        >
+          {/* SET 1 */}
+          <ul className="flex shrink-0" aria-label="Photos">
             {portraits.map((item, i) => (
               <PortraitCard
-                key={`a-${i}-${item.src}`}
+                key={`a-${i}`}
                 item={item}
                 index={i}
                 isDuplicate={false}
-                onOpen={onOpenPhoto}
+                onOpen={handleOpen}
               />
             ))}
           </ul>
-          <ul className="marquee-dup flex" aria-hidden="true">
+          
+          {/* SET 2 (Duplicate) */}
+          <ul className="flex shrink-0" aria-hidden="true">
             {portraits.map((item, i) => (
               <PortraitCard
-                key={`b-${i}-${item.src}`}
+                key={`b-${i}`}
                 item={item}
                 index={i}
                 isDuplicate={true}
-                onOpen={onOpenPhoto}
+                onOpen={handleOpen}
               />
             ))}
           </ul>
         </div>
       </div>
+
+      {openIndex !== null && (
+        <Lightbox
+          items={portraits}
+          index={openIndex}
+          onClose={handleClose}
+          onChange={handleOpen}
+        />
+      )}
     </section>
   );
 }

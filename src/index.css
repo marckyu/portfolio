@@ -15,25 +15,32 @@
 
 :root {
   color-scheme: dark;
+
   --bg-1: #0a0a0f;
   --border: rgba(255, 255, 255, 0.08);
   --border-strong: rgba(255, 255, 255, 0.14);
+
   --text-0: #e6e6f0;
   --text-1: #b9b9c9;
+
   --accent-blue: #4f8cff;
   --accent-violet: #8b5cf6;
   --accent-glow-blue: rgba(79, 140, 255, 0.35);
   --accent-glow-violet: rgba(139, 92, 246, 0.35);
+
   --radius-sm: 10px;
   --radius-md: 16px;
   --radius-full: 999px;
+
   --shadow-card: 0 10px 30px -12px rgba(0, 0, 0, 0.55), 0 2px 8px -4px rgba(0, 0, 0, 0.4);
   --shadow-elevated: 0 25px 60px -20px rgba(0, 0, 0, 0.7);
+
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --dur-fast: 150ms;
   --dur-med: 250ms;
   --dur-slow: 400ms;
-  --marquee-duration: 50s;
+
+  --marquee-duration: 40s;
 }
 
 @keyframes marquee {
@@ -44,6 +51,11 @@
 @keyframes scanline {
   0% { transform: translateY(-100vh); }
   100% { transform: translateY(100vh); }
+}
+
+@keyframes marquee-scroll {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-33.333%, 0, 0); }
 }
 
 @layer base {
@@ -68,6 +80,7 @@
     text-rendering: optimizeLegibility;
   }
 
+  /* Native SVG Cursor */
   @media (hover: hover) and (pointer: fine) {
     body, p, h1, h2, h3, h4, span, div {
       cursor: url('/cursor.svg') 16 16, auto !important;
@@ -277,4 +290,9 @@ section {
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.2);
+}
+
+/* Seamless Loop Classes */
+.flex.w-max.paused {
+  animation-play-state: paused !important;
 }
