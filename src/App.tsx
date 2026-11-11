@@ -4,7 +4,7 @@ import Navbar from "./components/layout/Navbar";
 import DevLoader from "./components/layout/DevLoader";
 import BackgroundShapes from "./components/layout/BackgroundShapes";
 import ScrollProgress from "./components/layout/ScrollProgress";
-import BackToTop from "./components/layout/BackToTop"; // 👈 Idinagdag
+import BackToTop from "./components/layout/BackToTop";
 import Hero from "./components/sections/Hero";
 import About from "./components/sections/About";
 import Expertise from "./components/sections/Expertise";
@@ -43,7 +43,7 @@ export default function App() {
       <BackgroundShapes isLoading={playing} />
       <ScrollProgress />
 
-      <AnimatePresence mode="wait">
+      <AnimatePresence>
         {playing && <DevLoader key="devloader" onFinish={endIntro} />}
       </AnimatePresence>
 
@@ -54,14 +54,9 @@ export default function App() {
           <motion.main 
             id="main" 
             className="relative z-10 origin-top"
-            initial={{ opacity: 0, scale: 0.95, y: 30, filter: "blur(8px)" }}
-            animate={{ 
-              opacity: playing ? 0 : 1, 
-              scale: playing ? 0.95 : 1,
-              y: playing ? 30 : 0,
-              filter: playing ? "blur(8px)" : "blur(0px)"
-            }}
-            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
           >
             <Hero />
             <About />
@@ -73,7 +68,7 @@ export default function App() {
             <Contact />
           </motion.main>
           
-          <BackToTop /> 
+          <BackToTop />
         </>
       )}
     </div>
