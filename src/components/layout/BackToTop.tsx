@@ -1,32 +1,42 @@
-import { useEffect, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { useState, useEffect } from "react";
 import { ArrowUp } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function BackToTop() {
-  const [show, setShow] = useState(false);
-  const reduce = useReducedMotion();
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setShow(window.scrollY > 400);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    const toggleVisibility = () => {
+      if (window.scrollY > 500) {
+        setIsVisible(true);
+      } else {
+        setIsVisible(false);
+      }
+    };
+
+    window.addEventListener("scroll", toggleVisibility, { passive: true });
+    return () => window.removeEventListener("scroll", toggleVisibility);
   }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
 
   return (
     <AnimatePresence>
-      {show && (
+      {isVisible && (
         <motion.button
-          type="button"
-          aria-label="Back to top"
-          onClick={() => window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" })}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 20 }}
-          transition={{ duration: 0.25 }}
-          className="glass fixed bottom-5 right-5 z-40 grid h-12 w-12 place-items-center rounded-full text-white hover:bg-white/10 sm:bottom-6 sm:right-6"
+          initial={{ opacity: 0, scale: 0.5, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.5, y: 20 }}
+          onClick={scrollToTop}
+          aria-label="Scroll to top"
+          className="fixed bottom-6 right-6 z-[90] p-3 rounded-full bg-[#0a0a10] border border-white/10 text-white hover:bg-[#4f8cff] hover:border-[#4f8cff] hover:scale-110 transition-all duration-300 shadow-2xl backdrop-blur-md hidden md:flex items-center justify-center"
         >
-          <ArrowUp size={20} aria-hidden />
+          <ArrowUp size={20} />
         </motion.button>
       )}
     </AnimatePresence>

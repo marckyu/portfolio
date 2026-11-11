@@ -4,6 +4,7 @@ import Navbar from "./components/layout/Navbar";
 import DevLoader from "./components/layout/DevLoader";
 import BackgroundShapes from "./components/layout/BackgroundShapes";
 import ScrollProgress from "./components/layout/ScrollProgress";
+import BackToTop from "./components/layout/BackToTop"; // 👈 Idinagdag
 import Hero from "./components/sections/Hero";
 import About from "./components/sections/About";
 import Expertise from "./components/sections/Expertise";
@@ -71,6 +72,8 @@ export default function App() {
             <LearningJourney />
             <Contact />
           </motion.main>
+          
+          <BackToTop /> 
         </>
       )}
     </div>
