@@ -24,7 +24,10 @@ function PortraitCard({ item, index, isDuplicate, onOpen }: PortraitCardProps) {
     >
       <button
         type="button"
-        onClick={() => onOpen(index)}
+        onClick={(e) => {
+          e.stopPropagation();
+          onOpen(index);
+        }}
         tabIndex={isDuplicate ? -1 : 0}
         aria-hidden={isDuplicate || undefined}
         aria-label={`Open photo: ${item.alt}`}
@@ -77,7 +80,6 @@ export default function InfinitePortraits({ onOpenPhoto, isPaused }: InfinitePor
 
   return (
     <section aria-label="Photo gallery" className="relative py-10 overflow-hidden">
-      {/* Zoom container para matakpan yung reset gap */}
       <div className="marquee-container overflow-hidden scale-105">
         <div 
           className="flex w-max"
@@ -86,7 +88,6 @@ export default function InfinitePortraits({ onOpenPhoto, isPaused }: InfinitePor
             willChange: "transform",
           }}
         >
-          {/* SET 1 */}
           <ul className="flex shrink-0" aria-label="Photos">
             {portraits.map((item, i) => (
               <PortraitCard
@@ -99,7 +100,6 @@ export default function InfinitePortraits({ onOpenPhoto, isPaused }: InfinitePor
             ))}
           </ul>
           
-          {/* SET 2 (Duplicate) */}
           <ul className="flex shrink-0" aria-hidden="true">
             {portraits.map((item, i) => (
               <PortraitCard

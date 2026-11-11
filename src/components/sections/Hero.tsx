@@ -31,6 +31,7 @@ export default function Hero() {
   return (
     <section className="relative min-h-screen flex flex-col justify-center pt-32 pb-16 overflow-hidden bg-[#050508]">
       <div className="absolute inset-0 z-0">
+        {/* 👇 Background with pointer-events-auto */}
         <div className="absolute inset-0 opacity-60 pointer-events-auto">
           <InfinitePortraits onOpenPhoto={setLightboxIndex} isPaused={lightboxIndex !== null} />
         </div>
@@ -90,7 +91,9 @@ export default function Hero() {
                 </motion.div>
               );
             })}
-            <motion.div variants={itemVariants} className="w-full">
+            
+            {/* 👇 Ito ang magic: naka-wrap sa div na may stopPropagation */}
+            <motion.div variants={itemVariants} className="w-full" onClick={(e) => e.stopPropagation()}>
               <DevSoundtrackWidget />
             </motion.div>
           </motion.div>
@@ -104,4 +107,4 @@ export default function Hero() {
       )}
     </section>
   );
-} 
+}
