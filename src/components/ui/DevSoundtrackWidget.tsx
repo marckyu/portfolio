@@ -1,62 +1,88 @@
-import { useState, useRef } from "react";
-import { Play, Pause, SkipForward, Volume2, VolumeX } from "lucide-react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Play, Pause, Volume2, VolumeX, SkipForward, ArrowRight, GripVertical, ChevronDown, ChevronUp } from "lucide-react";
 
 const tracks = [
-  { title: "Ngalan Mo", artist: "Yden", src: "/videos/video1.mp4" },
-  { title: "Deep Focus", artist: "Ambient Waves", src: "/videos/video2.mp4" },
-  { title: "Neon Dreams", artist: "Synthwave", src: "/videos/video3.mp4" },
+  { id: 1, title: "Ngalan Mo", artist: "Yden", src: "/videos/video1.mp4" },
+  { id: 2, title: "Mas Gusto Kita", artist: "Yden", src: "/videos/video2.mp4" },
+  { id: 3, title: "Naiilang", artist: "Le John", src: "/videos/video3.mp4" },
+  { id: 4, title: "Pag-Ibig (Meron ba?)", artist: "Ace Banzuelo", src: "/videos/video4.mp4" },
 ];
 
-const formatTime = (time: number) => {
-  if (isNaN(time)) return "0:00";
-  const mins = Math.floor(time / 60);
-  const secs = Math.floor(time % 60);
-  return `${mins}:${secs.toString().padStart(2, "0")}`;
-};
+const EqualizerBars = ({ playing }: { playing: boolean }) => (
+  <div className="flex items-end gap-[2px] h-2.5">
+    {[0.4, 0.8, 0.6, 0.9].map((val, i) => (
+      <motion.div
+        key={i}
+        animate={{ height: playing ? ["20%", `${val * 100}%`, "20%"] : "20%" }}
+        transition={{ repeat: Infinity, duration: 0.6 + i * 0.15, ease: "easeInOut" }}
+        className="w-[2px] bg-cyan-400 rounded-full will-change-[height]"
+      />
+    ))}
+  </div>
+);
 
 export default function DevSoundtrackWidget() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
+  
   const [playing, setPlaying] = useState(false);
-  const [muted, setMuted] = useState(true);
+  const [muted, setMuted] = useState(false);
   const [index, setIndex] = useState(0);
   const [progress, setProgress] = useState(0);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
+  const [isExpanded, setIsExpanded] = useState(false);
 
-  const toggle = () => {
+  const nextIndex = (index + 1) % tracks.length;
+  const nextTrack = tracks[nextIndex];
+  const currentTrack = tracks[index];
+
+  const handleTimeUpdate = useCallback(() => {
+    const video = videoRef.current;
+    if (video && video.duration) {
+      setProgress((video.currentTime / video.duration) * 100);
+    }
+  }, []);
+
+  useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
-    if (playing) video.pause();
-    else video.play().catch(() => {});
-    setPlaying(!playing);
+
+    video.addEventListener("timeupdate", handleTimeUpdate);
+    return () => video.removeEventListener("timeupdate", handleTimeUpdate);
+  }, [handleTimeUpdate]);
+
+  const togglePlay = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    const video = videoRef.current;
+    if (!video) return;
+    
+    if (playing) {
+      video.pause();
+      setPlaying(false);
+    } else {
+      video.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
+    }
   };
 
   const toggleMute = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (videoRef.current) {
-      videoRef.current.muted = !muted;
-      setMuted(!muted);
-    }
-  };
-
-  const next = (e?: React.MouseEvent) => {
-    e?.stopPropagation();
-    setIndex((prev) => (prev + 1) % tracks.length);
-    setPlaying(true);
-    setTimeout(() => {
-      videoRef.current?.play().catch(() => {});
-    }, 50);
-  };
-
-  const handleTimeUpdate = () => {
     const video = videoRef.current;
     if (!video) return;
-    setCurrentTime(video.currentTime);
-    if (video.duration) {
-      setDuration(video.duration);
-      setProgress((video.currentTime / video.duration) * 100);
-    }
+    video.muted = !muted;
+    setMuted(!muted);
+  };
+
+  const handleNext = (e?: React.SyntheticEvent) => {
+    e?.stopPropagation();
+    setIndex(nextIndex);
+    setProgress(0);
+    setPlaying(true);
+    
+    setTimeout(() => {
+      if (videoRef.current) {
+        videoRef.current.play().catch(() => {});
+      }
+    }, 100);
   };
 
   const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -64,106 +90,198 @@ export default function DevSoundtrackWidget() {
     const video = videoRef.current;
     const bar = progressRef.current;
     if (!video || !bar) return;
+    
     const rect = bar.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
     const newTime = (clickX / rect.width) * video.duration;
     video.currentTime = newTime;
-    setCurrentTime(newTime);
     setProgress((newTime / video.duration) * 100);
   };
 
   return (
-    <div 
-      className="relative w-full max-w-md mx-auto p-4 rounded-3xl bg-slate-950/80 backdrop-blur-2xl border border-white/10 shadow-2xl overflow-hidden group will-change-transform"
-      onClick={(e) => e.stopPropagation()}
+    <motion.div 
+      layout
+      transition={{ type: "spring", stiffness: 300, damping: 25 }}
+      className="relative w-full will-change-transform transform-gpu z-20"
     >
-      
-      {/* Video Container */}
-      <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black mb-4 border border-white/10 group/video">
-        <video
-          ref={videoRef}
-          src={tracks[index].src}
-          onTimeUpdate={handleTimeUpdate}
-          onEnded={() => next()}
-          onLoadedMetadata={handleTimeUpdate}
-          playsInline
-          muted={muted}
-          className="w-full h-full object-cover"
-        />
-        
-        {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
-
-        {/* Top Info Badge & Mute */}
-        <div className="absolute top-3 right-3 flex gap-2 z-20">
-          <button 
-            onClick={toggleMute} 
-            className="p-2 rounded-full bg-black/50 backdrop-blur-md text-white hover:bg-black/70 transition-colors"
+      <AnimatePresence mode="wait" initial={false}>
+        {!isExpanded ? (
+          <motion.div 
+            key="collapsed"
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="flex items-center justify-between w-full rounded-full bg-slate-950/70 backdrop-blur-xl border border-cyan-500/30 px-4 py-2 shadow-lg"
           >
-            {muted ? <VolumeX size={14} /> : <Volume2 size={14} />}
-          </button>
-        </div>
-
-        {/* Bottom Left Info */}
-        <div className="absolute bottom-3 left-3 z-20 pointer-events-none">
-          <p className="text-[10px] font-mono text-cyan-400 uppercase tracking-widest font-semibold mb-0.5">Now Playing</p>
-          <h3 className="text-sm font-bold text-white truncate drop-shadow-md">{tracks[index].title}</h3>
-          <p className="text-[10px] text-slate-300 truncate drop-shadow-md">{tracks[index].artist}</p>
-        </div>
-
-        {/* Center Play Button (if paused) */}
-        {!playing && (
-          <div 
-            className="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm cursor-pointer z-10"
-            onClick={toggle}
-          >
-            <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-[#8b5cf6] to-[#38bdf8] flex items-center justify-center shadow-[0_0_30px_rgba(139,92,246,0.5)]">
-              <Play size={22} fill="white" className="ml-1 text-white" />
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Bottom Controls Row */}
-      <div className="flex items-center gap-3">
-        <button 
-          onClick={toggle} 
-          className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#8b5cf6] to-[#38bdf8] text-white flex items-center justify-center hover:scale-105 active:scale-95 transition-transform duration-200 shadow-[0_0_15px_rgba(139,92,246,0.3)] shrink-0 will-change-transform"
-        >
-          {playing ? <Pause size={16} fill="currentColor" /> : <Play size={16} fill="currentColor" className="ml-0.5" />}
-        </button>
-
-        <div className="flex-1 flex flex-col gap-1">
-          <div
-            ref={progressRef}
-            onClick={handleSeek}
-            className="w-full h-1.5 bg-white/10 rounded-full cursor-pointer relative group/bar"
-          >
-            <div
-              className="absolute top-0 left-0 h-full bg-gradient-to-r from-violet-500 via-indigo-500 to-cyan-400 rounded-full will-change-[width]"
-              style={{ width: `${progress}%` }}
-            >
-              {progress > 0 && (
-                <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-20">
-                  <div className={`w-3 h-3 rounded-full bg-white shadow-[0_0_12px_#38bdf8,0_0_20px_#38bdf8] ${playing ? "animate-pulse" : ""}`} />
-                  <div className={`absolute inset-0 w-3 h-3 rounded-full bg-[#38bdf8] blur-[4px] ${playing ? "opacity-80 animate-pulse" : "opacity-40"}`} />
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="relative w-10 h-10 rounded-full overflow-hidden shrink-0 bg-black border border-white/10">
+                <video 
+                  ref={videoRef}
+                  src={currentTrack.src}
+                  muted={muted}
+                  playsInline
+                  onEnded={handleNext}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="flex items-center gap-2.5 min-w-0">
+                <EqualizerBars playing={playing} />
+                <div className="flex flex-col min-w-0">
+                  <span className="text-sm font-bold text-white truncate leading-tight">{currentTrack.title}</span>
                 </div>
-              )}
+              </div>
             </div>
-          </div>
-          <div className="flex justify-between text-[9px] font-mono text-gray-500">
-            <span>{formatTime(currentTime)}</span>
-            <span>{formatTime(duration)}</span>
-          </div>
-        </div>
+            <div className="flex items-center gap-1.5 shrink-0 ml-2">
+              <button 
+                onClick={togglePlay} 
+                className="w-8 h-8 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center hover:bg-cyan-500/30 transition-colors"
+              >
+                {playing ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" className="ml-0.5" />}
+              </button>
+              <button 
+                onClick={() => setIsExpanded(true)}
+                className="p-2 rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+              >
+                <ChevronDown size={18} />
+              </button>
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div 
+            key="expanded"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{ duration: 0.3 }}
+            className="w-full rounded-3xl bg-slate-950/80 backdrop-blur-3xl border border-white/10 shadow-xl p-4 md:p-5 overflow-hidden relative"
+          >
+            <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-violet-600/20 rounded-full blur-[60px] pointer-events-none" />
 
-        <button 
-          onClick={next} 
-          className="p-2.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/5 text-slate-300 hover:text-white transition-all duration-200 active:scale-95 outline-none shrink-0"
-        >
-          <SkipForward size={16} />
-        </button>
-      </div>
-    </div>
+            <div className="flex items-center gap-4 relative z-10">
+              <div className="relative w-24 h-24 md:w-28 md:h-28 rounded-2xl overflow-hidden bg-black shrink-0 shadow-lg border border-white/5">
+                <video 
+                  ref={videoRef}
+                  src={currentTrack.src}
+                  muted={muted}
+                  playsInline
+                  onEnded={handleNext}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              <div className="flex-1 min-w-0 flex flex-col justify-center">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+                  <p className="text-[10px] font-mono text-cyan-400 uppercase tracking-widest font-semibold">Now Playing</p>
+                  <EqualizerBars playing={playing} />
+                </div>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentTrack.id}
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -5 }}
+                    transition={{ duration: 0.25 }}
+                  >
+                    <h3 className="text-lg md:text-xl font-bold text-white tracking-tight leading-none mb-1 truncate">{currentTrack.title}</h3>
+                    <p className="text-sm text-slate-400 font-medium truncate">{currentTrack.artist}</p>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+            </div>
+
+            <div className="mt-5 relative z-10" onClick={(e) => e.stopPropagation()}>
+              <div
+                ref={progressRef}
+                onClick={handleSeek}
+                className="w-full h-1.5 bg-white/10 rounded-full cursor-pointer relative group/bar"
+              >
+                <motion.div
+                  layout
+                  className="absolute top-0 left-0 h-full bg-gradient-to-r from-violet-500 via-indigo-500 to-cyan-400 rounded-full will-change-[width]"
+                  style={{ width: `${progress}%` }}
+                >
+                  {progress > 0 && (
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-20">
+                      <div className={`w-4 h-4 rounded-full bg-white shadow-[0_0_12px_#38bdf8] ${playing ? "animate-pulse" : ""}`} />
+                    </div>
+                  )}
+                </motion.div>
+              </div>
+            </div>
+
+            <div className="mt-4 flex items-center justify-between relative z-10">
+              <div className="flex items-center gap-2">
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={handleNext}
+                  className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-colors duration-200 outline-none will-change-transform"
+                >
+                  <SkipForward size={18} />
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={toggleMute}
+                  className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-colors duration-200 outline-none will-change-transform"
+                >
+                  {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={togglePlay}
+                  className="w-12 h-12 rounded-full bg-gradient-to-tr from-cyan-500 to-violet-600 text-white flex items-center justify-center transition-colors duration-200 outline-none will-change-transform shadow-[0_0_20px_rgba(56,189,248,0.3)] ml-2"
+                >
+                  {playing ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-1" />}
+                </motion.button>
+              </div>
+
+              <button 
+                onClick={() => setIsExpanded(false)}
+                className="p-2.5 rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-colors shrink-0"
+              >
+                <ChevronUp size={20} />
+              </button>
+            </div>
+
+            <motion.div 
+              whileHover={{ scale: 1.01, backgroundColor: "rgba(255,255,255,0.08)" }}
+              whileTap={{ scale: 0.98 }}
+              className="mt-5 p-3 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 flex items-center gap-3 cursor-pointer transition-colors group/upnext relative z-10 will-change-transform transform-gpu"
+              onClick={handleNext}
+            >
+              <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0 bg-black border border-cyan-500/30 shadow-md">
+                <video src={nextTrack.src} muted loop autoPlay playsInline className="w-full h-full object-cover group-hover/upnext:opacity-100 transition-opacity" />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:upnext:bg-cyan-500/20 transition-colors">
+                  <ArrowRight size={16} className="text-white drop-shadow-md" />
+                </div>
+              </div>
+              
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] font-mono text-cyan-400 uppercase tracking-widest font-bold mb-0.5">Up Next • Queued</p>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={nextTrack.id}
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -5 }}
+                    transition={{ duration: 0.25 }}
+                  >
+                    <h4 className="text-sm font-semibold text-white truncate leading-tight">{nextTrack.title}</h4>
+                    <p className="text-[11px] text-slate-400 truncate">{nextTrack.artist}</p>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+              <motion.div whileHover={{ x: 3 }} className="text-gray-600 group-hover/upnext:text-cyan-400 transition-colors">
+                <GripVertical size={16} />
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }
