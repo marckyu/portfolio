@@ -141,10 +141,7 @@ export default function Hero() {
       
       <div className="absolute inset-0 z-0 opacity-40 md:opacity-60">
         {showPortraits && (
-          <InfinitePortraits 
-            onOpenPhoto={setLightboxIndex} 
-            isPaused={lightboxIndex !== null} 
-          />
+          <InfinitePortraits />
         )}
         <div className="absolute inset-0 bg-[#050508]/70 pointer-events-none" />
       </div>

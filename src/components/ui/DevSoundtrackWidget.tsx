@@ -201,7 +201,6 @@ const WavyProgress = memo(({
   const mid = height / 2;
   const frequency = 0.15;
   const r = 6;
-  const padding = 10;
 
   useLayoutEffect(() => {
     const el = trackRef.current;
@@ -364,7 +363,7 @@ export default function DevSoundtrackWidget() {
   const listRef = useRef<HTMLDivElement>(null);
 
   const [playing, setPlaying] = useState(false);
-  const [muted, setMuted] = useState(false);
+  const [muted] = useState(false);
   const [index, setIndex] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -488,7 +487,6 @@ export default function DevSoundtrackWidget() {
     setTimeout(() => setVinylEgg(false), 2000);
   };
 
-  const springConfig = { type: "spring" as const, stiffness: 500, damping: 35 };
   const ease = [0.16, 1, 0.3, 1] as const;
 
   const greeting = useMemo(() => getGreeting(), []);
