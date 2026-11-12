@@ -1,44 +1,34 @@
-import { useState } from "react";
 import type { Portrait } from "../../types";
 import { portraits } from "../../data/portraits";
-import Lightbox from "../ui/Lightbox";
 
 interface PortraitCardProps {
   item: Portrait;
   index: number;
   isDuplicate: boolean;
-  onOpen: (index: number) => void;
 }
 
-function PortraitCard({ item, index, isDuplicate, onOpen }: PortraitCardProps) {
+function PortraitCard({ item, index, isDuplicate }: PortraitCardProps) {
   const rotation = ((index % 5) - 2) * 1.5;
   const offset = ((index % 3) - 1) * 8;
 
   return (
     <li
-      className="portrait-card shrink-0 px-2"
+      className="portrait-card shrink-0 px-2 pointer-events-none"
       style={{
         "--rotation": `${rotation}deg`,
         "--offset": `${offset}px`,
       } as React.CSSProperties}
     >
-      <button
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          onOpen(index);
-        }}
-        tabIndex={isDuplicate ? -1 : 0}
+      <div
         aria-hidden={isDuplicate || undefined}
-        aria-label={`Open photo: ${item.alt}`}
-        className="glass group relative block w-[240px] cursor-pointer overflow-hidden rounded-2xl text-left transition-transform duration-300 hover:scale-[1.03] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f8cff] sm:w-[280px]"
+        className="glass relative block w-[240px] overflow-hidden rounded-2xl text-left sm:w-[280px]"
       >
         <img
           src={item.src}
           alt={item.alt}
           width={780}
           height={1040}
-          loading="lazy"
+          loading="eager"
           decoding="async"
           draggable={false}
           onError={(e) => {
@@ -55,36 +45,19 @@ function PortraitCard({ item, index, isDuplicate, onOpen }: PortraitCardProps) {
           className="aspect-[3/4] w-full object-cover"
           style={{ objectPosition: "center" }}
         />
-      </button>
+      </div>
     </li>
   );
 }
 
-interface InfinitePortraitsProps {
-  onOpenPhoto: (index: number) => void;
-  isPaused: boolean;
-}
-
-export default function InfinitePortraits({ onOpenPhoto, isPaused }: InfinitePortraitsProps) {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
-
-  const handleOpen = (index: number) => {
-    setOpenIndex(index);
-    onOpenPhoto(index);
-  };
-
-  const handleClose = () => {
-    setOpenIndex(null);
-    onOpenPhoto(-1);
-  };
-
+export default function InfinitePortraits() {
   return (
-    <section aria-label="Photo gallery" className="relative py-10 overflow-hidden">
+    <section aria-hidden="true" className="relative py-10 overflow-hidden pointer-events-none">
       <div className="marquee-container overflow-hidden scale-105">
         <div 
           className="flex w-max"
           style={{
-            animation: isPaused ? "none" : "marquee-scroll 40s linear infinite",
+            animation: "marquee-scroll 40s linear infinite",
             willChange: "transform",
           }}
         >
@@ -95,7 +68,6 @@ export default function InfinitePortraits({ onOpenPhoto, isPaused }: InfinitePor
                 item={item}
                 index={i}
                 isDuplicate={false}
-                onOpen={handleOpen}
               />
             ))}
           </ul>
@@ -107,21 +79,11 @@ export default function InfinitePortraits({ onOpenPhoto, isPaused }: InfinitePor
                 item={item}
                 index={i}
                 isDuplicate={true}
-                onOpen={handleOpen}
               />
             ))}
           </ul>
         </div>
       </div>
-
-      {openIndex !== null && (
-        <Lightbox
-          items={portraits}
-          index={openIndex}
-          onClose={handleClose}
-          onChange={handleOpen}
-        />
-      )}
     </section>
   );
 }
