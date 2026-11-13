@@ -2,6 +2,7 @@ import { useState, useEffect, memo } from "react";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { User, Code2, Mail, Layers, Briefcase, Menu, X } from "lucide-react";
 
+
 const LINKS = [
   { name: "About", href: "#about", icon: <User size={18} /> },
   { name: "Expertise", href: "#expertise", icon: <Briefcase size={18} /> },
