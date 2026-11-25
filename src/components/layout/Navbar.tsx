@@ -182,7 +182,7 @@ export default function Navbar() {
               dragControls={dragControls}
               dragConstraints={{ top: 0, bottom: 0 }}
               dragElastic={{ top: 0, bottom: 0.8 }}
-              onDragEnd={(event, info) => {
+              onDragEnd={(_, info) => {
                 if (info.offset.y > 100 || info.velocity.y > 500) {
                   setIsMobileOpen(false);
                 }
