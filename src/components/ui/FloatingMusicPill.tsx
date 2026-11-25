@@ -7,7 +7,7 @@ import { usePortfolioTheme } from "../../context/PortfolioThemeContext";
 const SPRING = { type: "spring", stiffness: 360, damping: 28, mass: 0.85 } as const;
 
 export default function FloatingMusicPill({ isCompact }: { isCompact: boolean }) {
-  const { theme } = usePortfolioTheme();
+  const { density } = usePortfolioTheme();
   const videoRef = useRef<HTMLVideoElement>(null);
   
   const [playing, setPlaying] = useState(false);
@@ -22,7 +22,7 @@ export default function FloatingMusicPill({ isCompact }: { isCompact: boolean })
 
   useEffect(() => {
     if (isCompact) setExpanded(false);
-  }, [isCompact]);
+  }, [isCompact, density]);
 
   useEffect(() => {
     const video = videoRef.current;

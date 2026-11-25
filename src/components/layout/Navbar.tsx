@@ -43,10 +43,8 @@ ActionButton.displayName = "ActionButton";
 export default function Navbar() {
   const [activeSection, setActiveSection] = useState("about");
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-
   const dragControls = useDragControls();
 
-  // Scroll logic
   useEffect(() => {
     let ticking = false;
     const handleScroll = () => {
@@ -72,7 +70,6 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Lock body scroll
   useEffect(() => {
     document.body.style.overflow = isMobileOpen ? "hidden" : "";
     return () => {
@@ -82,7 +79,7 @@ export default function Navbar() {
 
   const handleOpenMobile = () => {
     if (typeof navigator !== "undefined" && navigator.vibrate) {
-      navigator.vibrate(10); // Tiny haptic feedback on Android
+      navigator.vibrate(10);
     }
     setIsMobileOpen(true);
   };
@@ -94,10 +91,8 @@ export default function Navbar() {
 
   return (
     <>
-      {/* ================= DESKTOP NAVBAR ================= */}
       <div className="fixed top-4 inset-x-0 z-[999] hidden lg:flex justify-center px-4 pointer-events-none">
         <nav className="pointer-events-auto flex items-center justify-between w-full max-w-[800px] h-[60px] p-1.5 rounded-full border border-white/10 bg-[#050508]/70 backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_1px_rgba(255,255,255,0.05)] relative overflow-hidden transform-gpu will-change-transform">
-          
           <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-[#4f8cff]/40 to-transparent" />
           <BrandLogo />
 
@@ -140,11 +135,9 @@ export default function Navbar() {
         </nav>
       </div>
 
-      {/* ================= MOBILE NAVBAR (PILL) ================= */}
       <div className="fixed top-4 inset-x-0 z-[999] flex lg:hidden justify-center px-4 pointer-events-none">
         <nav className="pointer-events-auto flex items-center justify-between w-full max-w-sm h-[56px] px-2 rounded-full border border-white/10 bg-[#050508]/80 backdrop-blur-2xl shadow-lg relative overflow-hidden transform-gpu will-change-transform">
           <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-[#4f8cff]/40 to-transparent" />
-          
           <BrandLogo />
 
           <div className="flex items-center gap-1">
@@ -169,11 +162,9 @@ export default function Navbar() {
         </nav>
       </div>
 
-      {/* ================= MOBILE MENU OVERLAY (BOTTOM SHEET) ================= */}
       <AnimatePresence>
         {isMobileOpen && (
           <>
-            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -182,7 +173,6 @@ export default function Navbar() {
               className="fixed inset-0 z-[1000] bg-black/60 backdrop-blur-sm lg:hidden"
             />
 
-            {/* Draggable Bottom Sheet */}
             <motion.div
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
@@ -191,7 +181,7 @@ export default function Navbar() {
               drag="y"
               dragControls={dragControls}
               dragConstraints={{ top: 0, bottom: 0 }}
-              dragElastic={{ top: 0, bottom: 0.8 }} // Only allow dragging down
+              dragElastic={{ top: 0, bottom: 0.8 }}
               onDragEnd={(e, info) => {
                 if (info.offset.y > 100 || info.velocity.y > 500) {
                   setIsMobileOpen(false);
@@ -199,7 +189,6 @@ export default function Navbar() {
               }}
               className="fixed bottom-0 inset-x-0 z-[1001] bg-[#0a0a10] border-t border-white/10 rounded-t-[32px] shadow-[0_-10px_40px_rgba(0,0,0,0.5)] lg:hidden flex flex-col max-h-[85vh] will-change-transform"
             >
-              {/* Drag Handle */}
               <div 
                 className="w-full flex justify-center py-4 cursor-grab active:cursor-grabbing touch-none"
                 onPointerDown={(e) => dragControls.start(e)}
@@ -251,7 +240,6 @@ export default function Navbar() {
                         </span>
                         <span className="text-lg font-semibold font-[Space_Grotesk] tracking-wide">{link.name}</span>
                         
-                        {/* Active Indicator Dot */}
                         {isActive && (
                           <motion.div 
                             layoutId="active-dot"
