@@ -22,7 +22,7 @@ export const playlistData: { library: Library; tracks: Track[] } = {
   library: {
     title: "kyut talaga ni dol",
     subtitle: "Songs I code to",
-    cover: "/images/library-cover.jpg",
+    cover: "/images/library-cover.jpg", // Siguraduhing meron kang ganito sa public/images/
     codingPrefix: "> now coding to:",
     mood: "opm / chill / synthwave",
     shuffleLabel: "Shuffle Play",

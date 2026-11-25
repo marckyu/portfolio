@@ -1,12 +1,15 @@
 import { useState, lazy, Suspense, useEffect } from "react";
-import { motion, AnimatePresence, type Variants } from "framer-motion";
-import { ArrowDown, Globe, Gamepad2, Image as ImageIcon, ChevronDown, ChevronUp } from "lucide-react";
+import { motion, type Variants } from "framer-motion";
+import { ArrowDown, Globe, Gamepad2, Image as ImageIcon, Settings2 } from "lucide-react";
 import { site } from "../../data/site";
 import { portraits } from "../../data/portraits";
 import { Button } from "../ui/Button";
 import GithubIcon from "../ui/GithubIcon";
 import InfinitePortraits from "./InfinitePortraits";
-import DevSoundtrackWidget from "../ui/DevSoundtrackWidget";
+import BentoAccordionCard from "../ui/BentoAccordionCard";
+import FloatingMusicPill from "../ui/FloatingMusicPill";
+import MobileCustomizerSheet from "../ui/MobileCustomizerSheet";
+import { usePortfolioTheme } from "../../context/PortfolioThemeContext";
 
 const Lightbox = lazy(() => import("../ui/Lightbox"));
 
@@ -22,114 +25,13 @@ const itemVariants: Variants = {
 
 const techStack = ["React", "TypeScript", "Tailwind", "PocketBase"];
 
-function WebDevCard() {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <motion.div 
-      layout
-      transition={{ type: "spring", stiffness: 300, damping: 25 }}
-      className="group relative rounded-3xl bg-slate-950/70 backdrop-blur-3xl border border-white/10 transition-all duration-300 hover:border-cyan-500/30 overflow-hidden shadow-xl will-change-transform transform-gpu"
-    >
-      <div className="p-4 flex items-center justify-between relative z-10">
-        <div className="flex items-center gap-3">
-          <div className="p-2 md:p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 shrink-0">
-            <Globe size={18} />
-          </div>
-          <h3 className="text-sm md:text-base font-bold text-white font-[Space_Grotesk]">Web Development</h3>
-        </div>
-        <button 
-          onClick={() => setIsOpen(!isOpen)}
-          className="p-1.5 rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-colors shrink-0"
-        >
-          {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-        </button>
-      </div>
-
-      <AnimatePresence initial={false}>
-        {isOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="overflow-hidden"
-          >
-            <div className="px-4 pb-4 md:px-5 md:pb-5">
-              <p className="text-xs text-gray-400 leading-relaxed mb-4">
-                Frontend, backend, and web app architecture with responsive UI.
-              </p>
-              <div className="flex flex-wrap items-center gap-2 mb-4">
-                {techStack.map((tech) => (
-                  <span key={tech} className="px-2.5 py-1 rounded-md bg-white/5 border border-white/10 text-[10px] font-mono text-gray-300">
-                    {tech}
-                  </span>
-                ))}
-              </div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px] font-mono">
-                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-                Shipped in real projects
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
-  );
-}
-
-function GameDevCard() {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <motion.div 
-      layout
-      transition={{ type: "spring", stiffness: 300, damping: 25 }}
-      className="group relative rounded-3xl bg-slate-950/70 backdrop-blur-3xl border border-white/10 transition-all duration-300 hover:border-purple-500/30 overflow-hidden shadow-xl will-change-transform transform-gpu"
-    >
-      <div className="p-4 flex items-center justify-between relative z-10">
-        <div className="flex items-center gap-3">
-          <div className="p-2 md:p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 shrink-0">
-            <Gamepad2 size={18} />
-          </div>
-          <h3 className="text-sm md:text-base font-bold text-white font-[Space_Grotesk]">Game Development</h3>
-        </div>
-        <button 
-          onClick={() => setIsOpen(!isOpen)}
-          className="p-1.5 rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-colors shrink-0"
-        >
-          {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-        </button>
-      </div>
-
-      <AnimatePresence initial={false}>
-        {isOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="overflow-hidden"
-          >
-            <div className="px-4 pb-4 md:px-5 md:pb-5">
-              <p className="text-xs text-gray-400 leading-relaxed mb-4">
-                Game mechanics, logic, and gameplay systems.
-              </p>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-[10px] font-mono">
-                <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" />
-                Currently experimenting
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
-  );
-}
-
 export default function Hero() {
+  const { density } = usePortfolioTheme();
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [showPortraits, setShowPortraits] = useState(false);
+  const [customizerOpen, setCustomizerOpen] = useState(false);
+
+  const isCompact = density === "compact";
 
   useEffect(() => {
     const timer = setTimeout(() => setShowPortraits(true), 300);
@@ -139,16 +41,29 @@ export default function Hero() {
   return (
     <section className="relative min-h-screen flex flex-col justify-center pt-24 pb-24 overflow-hidden bg-[#050508]">
       
+      {/* BACKGROUND */}
       <div className="absolute inset-0 z-0 opacity-40 md:opacity-60">
         {showPortraits && (
           <InfinitePortraits />
         )}
-        <div className="absolute inset-0 bg-[#050508]/70 pointer-events-none" />
+        <div className="absolute inset-0 bg-[var(--bg-dim)] pointer-events-none transition-colors duration-500" />
+      </div>
+
+      {/* CUSTOMIZER BUTTON */}
+      <div className="absolute top-6 right-6 z-50">
+        <motion.button 
+          whileTap={{ scale: 0.9 }}
+          onClick={() => setCustomizerOpen(true)}
+          className="p-3.5 rounded-full bg-slate-950/65 border border-white/10 text-white backdrop-blur-md shadow-lg pointer-events-auto"
+        >
+          <Settings2 size={20} />
+        </motion.button>
       </div>
 
       <div className="relative z-10 w-full max-w-7xl mx-auto px-5 md:px-12 pointer-events-none">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
           
+          {/* LEFT SIDE: TEXT CONTENT */}
           <motion.div variants={containerVariants} initial="hidden" animate="show" className="lg:col-span-7 flex flex-col items-start pt-10 md:pt-0 pointer-events-auto">
             <div className="inline-flex items-center gap-3 px-3 py-1.5 rounded-full border border-white/10 bg-white/5 mb-5">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -158,7 +73,9 @@ export default function Hero() {
             <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold font-[Space_Grotesk] leading-[1.1] tracking-tight">
               <span className="block text-gray-400 text-base md:text-2xl font-mono mb-2 font-normal">{site.name}</span>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 block">{site.role.split(" ")[0]}</span>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4f8cff] to-[#8b5cf6] block">{site.role.split(" ").slice(1).join(" ")}</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] block">
+                {site.role.split(" ").slice(1).join(" ")}
+              </span>
             </h1>
 
             <p className="mt-6 text-gray-300 text-sm md:text-lg max-w-xl leading-relaxed">{site.intro}</p>
@@ -170,21 +87,69 @@ export default function Hero() {
             </div>
           </motion.div>
 
-          <motion.div variants={containerVariants} initial="hidden" animate="show" className="lg:col-span-5 flex flex-col gap-3 pointer-events-auto">
+          {/* RIGHT SIDE: INTERACTIVE WIDGETS */}
+          <motion.div 
+            variants={containerVariants} 
+            initial="hidden" 
+            animate="show" 
+            className="lg:col-span-5 flex flex-col gap-3 pointer-events-auto"
+            style={{ touchAction: "pan-y" }}
+          >
             <motion.div variants={itemVariants}>
-              <WebDevCard />
+              <BentoAccordionCard 
+                isCompact={isCompact}
+                icon={<Globe size={18} />} 
+                title="Web Development" 
+                summary="React & Tailwind"
+                details={
+                  <div className="flex flex-col gap-4">
+                    <p className="text-xs text-gray-400 leading-relaxed">
+                      Frontend, backend, and web app architecture with responsive UI.
+                    </p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      {techStack.map((tech) => (
+                        <span key={tech} className="px-2.5 py-1 rounded-md bg-white/5 border border-white/10 text-[10px] font-mono text-gray-300">
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/20 text-[var(--accent-primary)] text-[10px] font-mono w-fit">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-primary)] animate-pulse" />
+                      Shipped in real projects
+                    </div>
+                  </div>
+                }
+              />
             </motion.div>
 
             <motion.div variants={itemVariants}>
-              <GameDevCard />
+              <BentoAccordionCard 
+                isCompact={isCompact}
+                icon={<Gamepad2 size={18} />} 
+                title="Game Development" 
+                summary="Unity & C#"
+                details={
+                  <div className="flex flex-col gap-4">
+                    <p className="text-xs text-gray-400 leading-relaxed">
+                      Game mechanics, logic, and gameplay systems.
+                    </p>
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--accent-secondary)]/10 border border-[var(--accent-secondary)]/20 text-[var(--accent-secondary)] text-[10px] font-mono w-fit">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-secondary)] animate-pulse" />
+                      Currently experimenting
+                    </div>
+                  </div>
+                }
+              />
             </motion.div>
 
             <motion.div variants={itemVariants} className="w-full">
-              <DevSoundtrackWidget />
+              <FloatingMusicPill isCompact={isCompact} />
             </motion.div>
           </motion.div>
         </div>
       </div>
+
+      <MobileCustomizerSheet isOpen={customizerOpen} onClose={() => setCustomizerOpen(false)} />
 
       {lightboxIndex !== null && (
         <Suspense fallback={null}>

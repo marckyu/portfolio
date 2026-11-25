@@ -13,6 +13,8 @@ import Projects from "./components/sections/Projects";
 import Workflow from "./components/sections/Workflow";
 import LearningJourney from "./components/sections/LearningJourney";
 import Contact from "./components/sections/Contact";
+import CommandMenu from "./components/interactive/CommandMenu";
+import { PortfolioThemeProvider } from "./context/PortfolioThemeContext";
 
 export default function App() {
   const [playing, setPlaying] = useState(true);
@@ -39,38 +41,41 @@ export default function App() {
   }, [playing]);
 
   return (
-    <div id="top" className="overflow-x-clip relative min-h-screen bg-[#050508]">
-      <BackgroundShapes isLoading={playing} />
-      <ScrollProgress />
+    <PortfolioThemeProvider>
+      <div id="top" className="overflow-x-clip relative min-h-screen bg-[#050508]">
+        <BackgroundShapes isLoading={playing} />
+        <ScrollProgress />
+        <CommandMenu />
 
-      <AnimatePresence>
-        {playing && <DevLoader key="devloader" onFinish={endIntro} />}
-      </AnimatePresence>
+        <AnimatePresence>
+          {playing && <DevLoader key="devloader" onFinish={endIntro} />}
+        </AnimatePresence>
 
-      {!playing && (
-        <>
-          <Navbar />
-          
-          <motion.main 
-            id="main" 
-            className="relative z-10 origin-top"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-          >
-            <Hero />
-            <About />
-            <Expertise />
-            <TechStack />
-            <Projects />
-            <Workflow />
-            <LearningJourney />
-            <Contact />
-          </motion.main>
-          
-          <BackToTop />
-        </>
-      )}
-    </div>
+        {!playing && (
+          <>
+            <Navbar />
+            
+            <motion.main 
+              id="main" 
+              className="relative z-10 origin-top"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+            >
+              <Hero />
+              <About />
+              <Expertise />
+              <TechStack />
+              <Projects />
+              <Workflow />
+              <LearningJourney />
+              <Contact />
+            </motion.main>
+            
+            <BackToTop />
+          </>
+        )}
+      </div>
+    </PortfolioThemeProvider>
   );
 }

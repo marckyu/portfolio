@@ -1,14 +1,13 @@
 import { useState, useEffect, memo } from "react";
-import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
-import { User, Code2, Mail, Layers, Briefcase, Menu, X } from "lucide-react";
-
+import { motion, AnimatePresence, LayoutGroup, useDragControls } from "framer-motion";
+import { User, Code2, Mail, Layers, Briefcase, Menu, X, Search, MoveDown } from "lucide-react";
 
 const LINKS = [
-  { name: "About", href: "#about", icon: <User size={18} /> },
-  { name: "Expertise", href: "#expertise", icon: <Briefcase size={18} /> },
-  { name: "Stack", href: "#stack", icon: <Layers size={18} /> },
-  { name: "Projects", href: "#projects", icon: <Code2 size={18} /> },
-  { name: "Contact", href: "#contact", icon: <Mail size={18} /> },
+  { name: "About", href: "#about", icon: <User size={20} /> },
+  { name: "Expertise", href: "#expertise", icon: <Briefcase size={20} /> },
+  { name: "Stack", href: "#stack", icon: <Layers size={20} /> },
+  { name: "Projects", href: "#projects", icon: <Code2 size={20} /> },
+  { name: "Contact", href: "#contact", icon: <Mail size={20} /> },
 ];
 
 const BrandLogo = memo(() => (
@@ -45,6 +44,9 @@ export default function Navbar() {
   const [activeSection, setActiveSection] = useState("about");
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
+  const dragControls = useDragControls();
+
+  // Scroll logic
   useEffect(() => {
     let ticking = false;
     const handleScroll = () => {
@@ -52,7 +54,6 @@ export default function Navbar() {
         window.requestAnimationFrame(() => {
           const sections = LINKS.map((link) => link.href.replace("#", ""));
           let current = "about";
-
           for (const section of sections) {
             const el = document.getElementById(section);
             if (el) {
@@ -66,12 +67,12 @@ export default function Navbar() {
         ticking = true;
       }
     };
-
     window.addEventListener("scroll", handleScroll, { passive: true });
     handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Lock body scroll
   useEffect(() => {
     document.body.style.overflow = isMobileOpen ? "hidden" : "";
     return () => {
@@ -79,13 +80,25 @@ export default function Navbar() {
     };
   }, [isMobileOpen]);
 
+  const handleOpenMobile = () => {
+    if (typeof navigator !== "undefined" && navigator.vibrate) {
+      navigator.vibrate(10); // Tiny haptic feedback on Android
+    }
+    setIsMobileOpen(true);
+  };
+
+  const openCommandMenu = () => {
+    const event = new KeyboardEvent("keydown", { key: "k", ctrlKey: true });
+    document.dispatchEvent(event);
+  };
+
   return (
     <>
+      {/* ================= DESKTOP NAVBAR ================= */}
       <div className="fixed top-4 inset-x-0 z-[999] hidden lg:flex justify-center px-4 pointer-events-none">
         <nav className="pointer-events-auto flex items-center justify-between w-full max-w-[800px] h-[60px] p-1.5 rounded-full border border-white/10 bg-[#050508]/70 backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_1px_rgba(255,255,255,0.05)] relative overflow-hidden transform-gpu will-change-transform">
           
           <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-[#4f8cff]/40 to-transparent" />
-
           <BrandLogo />
 
           <LayoutGroup id="desktop-nav">
@@ -114,95 +127,162 @@ export default function Navbar() {
             </div>
           </LayoutGroup>
 
-          <ActionButton />
+          <div className="flex items-center gap-1">
+            <button
+              onClick={openCommandMenu}
+              className="flex items-center justify-center w-10 h-10 rounded-full text-gray-400 hover:text-white hover:bg-white/5 transition-colors outline-none"
+              aria-label="Open Command Menu"
+            >
+              <Search size={18} />
+            </button>
+            <ActionButton />
+          </div>
         </nav>
       </div>
 
+      {/* ================= MOBILE NAVBAR (PILL) ================= */}
       <div className="fixed top-4 inset-x-0 z-[999] flex lg:hidden justify-center px-4 pointer-events-none">
         <nav className="pointer-events-auto flex items-center justify-between w-full max-w-sm h-[56px] px-2 rounded-full border border-white/10 bg-[#050508]/80 backdrop-blur-2xl shadow-lg relative overflow-hidden transform-gpu will-change-transform">
           <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-[#4f8cff]/40 to-transparent" />
           
           <BrandLogo />
 
-          <button
-            onClick={() => setIsMobileOpen(true)}
-            className="flex items-center justify-center w-10 h-10 rounded-full bg-white/5 text-white active:scale-95 transition-transform will-change-transform outline-none"
-            aria-label="Open navigation menu"
-          >
-            <Menu size={20} />
-          </button>
+          <div className="flex items-center gap-1">
+            <motion.button
+              whileTap={{ scale: 0.85 }}
+              onClick={openCommandMenu}
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-white/5 text-white outline-none"
+              aria-label="Open Command Menu"
+            >
+              <Search size={18} />
+            </motion.button>
+
+            <motion.button
+              whileTap={{ scale: 0.85 }}
+              onClick={handleOpenMobile}
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-white/5 text-white outline-none"
+              aria-label="Open navigation menu"
+            >
+              <Menu size={20} />
+            </motion.button>
+          </div>
         </nav>
       </div>
 
+      {/* ================= MOBILE MENU OVERLAY (BOTTOM SHEET) ================= */}
       <AnimatePresence>
         {isMobileOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-[1000] bg-[#020204]/95 backdrop-blur-3xl flex flex-col lg:hidden transform-gpu will-change-transform"
-          >
-            <div className="flex justify-end p-4 pt-6">
-              <button
-                onClick={() => setIsMobileOpen(false)}
-                className="flex items-center justify-center w-12 h-12 rounded-full bg-white/5 text-white active:scale-95 transition-transform outline-none"
-                aria-label="Close menu"
-              >
-                <X size={24} />
-              </button>
-            </div>
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsMobileOpen(false)}
+              className="fixed inset-0 z-[1000] bg-black/60 backdrop-blur-sm lg:hidden"
+            />
 
-            <div className="flex flex-col items-center justify-center flex-1 -mt-10 gap-8 px-6">
-              <motion.div
-                initial="hidden"
-                animate="show"
-                variants={{
-                  hidden: { opacity: 0 },
-                  show: { opacity: 1, transition: { staggerChildren: 0.05, delayChildren: 0.1 } },
-                }}
-                className="flex flex-col items-center gap-8 w-full"
+            {/* Draggable Bottom Sheet */}
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              drag="y"
+              dragControls={dragControls}
+              dragConstraints={{ top: 0, bottom: 0 }}
+              dragElastic={{ top: 0, bottom: 0.8 }} // Only allow dragging down
+              onDragEnd={(e, info) => {
+                if (info.offset.y > 100 || info.velocity.y > 500) {
+                  setIsMobileOpen(false);
+                }
+              }}
+              className="fixed bottom-0 inset-x-0 z-[1001] bg-[#0a0a10] border-t border-white/10 rounded-t-[32px] shadow-[0_-10px_40px_rgba(0,0,0,0.5)] lg:hidden flex flex-col max-h-[85vh] will-change-transform"
+            >
+              {/* Drag Handle */}
+              <div 
+                className="w-full flex justify-center py-4 cursor-grab active:cursor-grabbing touch-none"
+                onPointerDown={(e) => dragControls.start(e)}
               >
-                {LINKS.map((link) => {
-                  const isActive = activeSection === link.href.replace("#", "");
-                  return (
-                    <motion.a
-                      key={link.name}
-                      href={link.href}
-                      onClick={() => setIsMobileOpen(false)}
-                      variants={{
-                        hidden: { opacity: 0, y: 15, scale: 0.95 },
-                        show: { opacity: 1, y: 0, scale: 1 },
-                      }}
-                      className={`group flex items-center justify-center gap-4 w-full max-w-[280px] py-4 rounded-2xl border transition-all duration-300 ${
-                        isActive
-                          ? "bg-[#4f8cff]/10 border-[#4f8cff]/30 text-[#4f8cff]"
-                          : "bg-white/5 border-white/5 text-gray-400 hover:text-white hover:bg-white/10"
-                      }`}
-                    >
-                      <span className={isActive ? "text-[#4f8cff]" : "text-gray-500 group-hover:text-white"}>
-                        {link.icon}
-                      </span>
-                      <span className="text-2xl font-bold font-[Space_Grotesk] tracking-wide">{link.name}</span>
-                    </motion.a>
-                  );
-                })}
-              </motion.div>
+                <div className="w-12 h-1.5 rounded-full bg-white/20" />
+              </div>
 
-              <motion.a
-                href="https://github.com/marckyu"
-                target="_blank"
-                rel="noreferrer"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="mt-8 flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-[#4f8cff] text-white font-semibold shadow-[0_0_20px_rgba(79,140,255,0.3)] active:scale-95 transition-transform w-full max-w-[280px] will-change-transform"
-              >
-                <Code2 size={20} />
-                View GitHub
-              </motion.a>
-            </div>
-          </motion.div>
+              <div className="px-6 pb-10 flex flex-col items-center overflow-y-auto custom-scrollbar">
+                <div className="flex w-full justify-between items-center mb-6">
+                  <h2 className="text-xl font-bold font-[Space_Grotesk] text-white">Navigation</h2>
+                  <motion.button
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => setIsMobileOpen(false)}
+                    className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400"
+                  >
+                    <X size={20} />
+                  </motion.button>
+                </div>
+
+                <motion.div
+                  initial="hidden"
+                  animate="show"
+                  variants={{
+                    hidden: { opacity: 0 },
+                    show: { opacity: 1, transition: { staggerChildren: 0.06, delayChildren: 0.1 } },
+                  }}
+                  className="flex flex-col gap-3 w-full"
+                >
+                  {LINKS.map((link) => {
+                    const isActive = activeSection === link.href.replace("#", "");
+                    return (
+                      <motion.a
+                        key={link.name}
+                        href={link.href}
+                        onClick={() => setIsMobileOpen(false)}
+                        variants={{
+                          hidden: { opacity: 0, y: 20, scale: 0.95 },
+                          show: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 300, damping: 24 } },
+                        }}
+                        whileTap={{ scale: 0.96 }}
+                        className={`group flex items-center gap-4 w-full px-5 py-4 rounded-2xl border transition-all duration-300 ${
+                          isActive
+                            ? "bg-[#4f8cff]/15 border-[#4f8cff]/40 text-[#4f8cff]"
+                            : "bg-[#14141d] border-white/5 text-gray-300"
+                        }`}
+                      >
+                        <span className={`p-2 rounded-xl ${isActive ? "bg-[#4f8cff]/20" : "bg-white/5"}`}>
+                          {link.icon}
+                        </span>
+                        <span className="text-lg font-semibold font-[Space_Grotesk] tracking-wide">{link.name}</span>
+                        
+                        {/* Active Indicator Dot */}
+                        {isActive && (
+                          <motion.div 
+                            layoutId="active-dot"
+                            className="ml-auto w-2 h-2 rounded-full bg-[#4f8cff] shadow-[0_0_10px_#4f8cff]" 
+                          />
+                        )}
+                      </motion.a>
+                    );
+                  })}
+                </motion.div>
+
+                <motion.a
+                  href="https://github.com/marckyu"
+                  target="_blank"
+                  rel="noreferrer"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                  whileTap={{ scale: 0.96 }}
+                  className="mt-6 flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-gradient-to-r from-[#4f8cff] to-[#8b5cf6] text-white font-bold shadow-[0_0_30px_rgba(79,140,255,0.4)] w-full"
+                >
+                  <Code2 size={20} />
+                  View GitHub
+                </motion.a>
+                
+                <p className="mt-6 text-xs text-gray-500 font-mono flex items-center gap-2">
+                  <MoveDown size={12} className="animate-bounce" /> Swipe down to close
+                </p>
+              </div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </>
