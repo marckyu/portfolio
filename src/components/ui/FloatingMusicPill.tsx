@@ -41,28 +41,33 @@ function ProgressBar({ videoRef }: { videoRef: React.RefObject<HTMLVideoElement 
 export default function FloatingMusicPill({ isCompact }: { isCompact: boolean }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   
-  const [isExpanded, setIsExpanded] = useState(!isCompact);
+  const [expandedState, setExpandedState] = useState({
+    isCompact,
+    expanded: !isCompact,
+  });
+  if (expandedState.isCompact !== isCompact) {
+    setExpandedState({
+      isCompact,
+      expanded: isCompact ? false : expandedState.expanded,
+    });
+  }
+  const isExpanded = expandedState.expanded;
+  const setIsExpanded = (value: boolean) =>
+    setExpandedState((current) => ({ ...current, expanded: value }));
   const [isQueueOpen, setIsQueueOpen] = useState(false);
   
   const [playing, setPlaying] = useState(false);
-  const [albumIndex, setAlbumIndex] = useState(0);
+  const albumIndex = 0;
   const [trackIndex, setTrackIndex] = useState(0);
   const [mediaError, setMediaError] = useState(false);
 
   const currentAlbum = musicLibrary[albumIndex];
   const currentTrack = currentAlbum.tracks[trackIndex];
 
-  useEffect(() => {
-    if (isCompact) setIsExpanded(false);
-  }, [isCompact]);
-
   const togglePlay = (e?: React.MouseEvent) => {
     e?.stopPropagation();
-    const video = videoRef.current;
-    if (!video) return;
     if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(8);
-    if (playing) video.pause(); else video.play().catch(() => setPlaying(false));
-    setPlaying(!playing);
+    setPlaying((current) => !current);
   };
 
   const playTrack = (index: number) => {
@@ -86,10 +91,14 @@ export default function FloatingMusicPill({ isCompact }: { isCompact: boolean })
     const video = videoRef.current;
     if (!video) return;
     video.load();
-    if (playing) {
-      video.play().catch(() => setPlaying(false));
-    }
   }, [trackIndex]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (playing) video.play().catch(() => setPlaying(false));
+    else video.pause();
+  }, [playing, trackIndex]);
 
   return (
     <div className="w-full relative z-20 flex justify-end">

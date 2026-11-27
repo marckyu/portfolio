@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence, useDragControls } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Compass, Camera, Gamepad2, Wrench, Music, X, ChevronLeft, ChevronRight } from "lucide-react";
 
 const SPRING = { type: "spring", stiffness: 350, damping: 26, mass: 0.8 } as const;
@@ -54,7 +54,6 @@ const HOBBIES = [
 export default function HobbiesExplorer({ onTriggerPhotos }: { onTriggerPhotos: () => void }) {
   const [isOpen, setIsOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const dragControls = useDragControls();
 
   // Handle escape key to close
   useEffect(() => {
@@ -68,7 +67,7 @@ export default function HobbiesExplorer({ onTriggerPhotos }: { onTriggerPhotos: 
   const handleNext = () => setCurrentIndex((prev) => (prev + 1) % HOBBIES.length);
   const handlePrev = () => setCurrentIndex((prev) => (prev - 1 + HOBBIES.length) % HOBBIES.length);
 
-  const handleDragEnd = (e: any, info: any) => {
+  const handleDragEnd = (_event: any, info: any) => {
     const threshold = 50;
     const velocity = 500;
 

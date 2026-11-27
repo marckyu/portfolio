@@ -9,17 +9,25 @@ export default function RefinedMusicPill({ isCompact }: { isCompact: boolean }) 
   const videoRef = useRef<HTMLVideoElement>(null);
   
   const [playing, setPlaying] = useState(false);
-  const [expanded, setExpanded] = useState(!isCompact);
+  const [expandedState, setExpandedState] = useState({
+    isCompact,
+    expanded: !isCompact,
+  });
+  if (expandedState.isCompact !== isCompact) {
+    setExpandedState({
+      isCompact,
+      expanded: isCompact ? false : expandedState.expanded,
+    });
+  }
+  const expanded = expandedState.expanded;
+  const setExpanded = (value: boolean) =>
+    setExpandedState((current) => ({ ...current, expanded: value }));
   const [index, setIndex] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
   const currentTrack = playlistData.tracks[index];
   const nextTrack = playlistData.tracks[(index + 1) % playlistData.tracks.length];
-
-  useEffect(() => {
-    if (isCompact) setExpanded(false);
-  }, [isCompact]);
 
   useEffect(() => {
     const video = videoRef.current;

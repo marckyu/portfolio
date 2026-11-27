@@ -25,12 +25,7 @@ export default function Lightbox({
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const previouslyFocused = useRef<HTMLElement | null>(null);
-  const [failed, setFailed] = useState<Record<number, boolean>>({});
-
-  // Reset failed state for the active index so a retry is possible.
-  useEffect(() => {
-    if (index !== null) setFailed((f) => ({ ...f, [index]: false }));
-  }, [index]);
+  const [failedIndex, setFailedIndex] = useState<number | null>(null);
 
   // Save focus, lock scroll, focus close button. Restore on unmount.
   useEffect(() => {
@@ -72,11 +67,13 @@ export default function Lightbox({
 
   const goPrev = useCallback(() => {
     if (index === null) return;
+    setFailedIndex(null);
     onChange((index - 1 + items.length) % items.length);
   }, [index, items.length, onChange]);
 
   const goNext = useCallback(() => {
     if (index === null) return;
+    setFailedIndex(null);
     onChange((index + 1) % items.length);
   }, [index, items.length, onChange]);
 
@@ -240,7 +237,7 @@ export default function Lightbox({
                 }}
                 className="flex w-full flex-col items-center"
               >
-                {failed[safeIndex] ? (
+                  {failedIndex === safeIndex ? (
                   <div
                     className="flex max-h-[85vh] w-auto items-center justify-center rounded-2xl border border-white/10 bg-gradient-to-br from-[#4f8cff]/40 to-[#8b5cf6]/40 px-16 py-32 font-[Space_Grotesk,sans-serif] text-5xl font-semibold text-white"
                     role="img"
@@ -254,7 +251,7 @@ export default function Lightbox({
                     alt={item.alt}
                     className="max-h-[85vh] w-auto max-w-full rounded-2xl object-contain shadow-2xl"
                     onError={() =>
-                      setFailed((f) => ({ ...f, [safeIndex]: true }))
+                      setFailedIndex(safeIndex)
                     }
                   />
                 )}

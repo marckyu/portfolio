@@ -16,11 +16,7 @@ export default function DevSoundtrack() {
   const [index, setIndex] = useState(0);
 
   const toggle = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    if (playing) audio.pause();
-    else audio.play().catch(() => {});
-    setPlaying(!playing);
+    setPlaying((current) => !current);
   };
 
   const pick = (i: number) => {
@@ -32,8 +28,14 @@ export default function DevSoundtrack() {
     const audio = audioRef.current;
     if (!audio) return;
     audio.load();
-    if (playing) audio.play().catch(() => setPlaying(false));
   }, [index]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (playing) audio.play().catch(() => setPlaying(false));
+    else audio.pause();
+  }, [index, playing]);
 
   const next = () => pick((index + 1) % tracks.length);
   const prev = () => pick((index - 1 + tracks.length) % tracks.length);

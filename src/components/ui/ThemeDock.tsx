@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Palette, X, Sparkles, SlidersHorizontal, RotateCcw, Check } from "lucide-react";
-import { usePortfolioTheme, M3_THEMES, type ThemeId, type DensityMode, type DimmingMode } from "../../context/PortfolioThemeContext";
+import { usePortfolioTheme } from "../../context/usePortfolioTheme";
+import { THEMES } from "../../config/portfolioWidgets";
+import type { ThemeId, DensityMode, DimmingMode } from "../../config/portfolioWidgets";
 
 const SPRING = { type: "spring", stiffness: 420, damping: 26, mass: 0.8 } as const;
 
@@ -56,7 +58,7 @@ export default function ThemeDock() {
               <div>
                 <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3 px-1">Wallpaper Theme</p>
                 <div className="flex gap-3 px-1">
-                  {(Object.keys(M3_THEMES) as ThemeId[]).map((t) => (
+                  {(Object.keys(THEMES) as ThemeId[]).map((t) => (
                     <button
                       key={t}
                       onClick={() => setThemeId(t)}
@@ -64,7 +66,7 @@ export default function ThemeDock() {
                         themeId === t ? "border-white" : "border-transparent opacity-60 hover:opacity-100"
                       }`}
                     >
-                      <div className="w-full h-full rounded-full" style={{ background: M3_THEMES[t].primary }} />
+                      <div className="w-full h-full rounded-full" style={{ background: THEMES[t].colors.primary }} />
                       {themeId === t && <Check size={20} className="absolute text-white drop-shadow-md" />}
                     </button>
                   ))}

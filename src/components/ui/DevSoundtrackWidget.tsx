@@ -194,6 +194,8 @@ const WavyProgress = memo(({
   const rafRef = useRef<number | undefined>(undefined);
   const lastTime = useRef(0);
   const isDragging = useRef(false);
+  const [isDraggingState, setIsDraggingState] = useState(false);
+  const drawRef = useRef<(time: number) => void>(() => {});
 
   const [trackWidth, setTrackWidth] = useState(200);
   const viewBoxW = 200;
@@ -219,10 +221,7 @@ const WavyProgress = memo(({
     lastTime.current = time;
 
     const video = videoRef.current;
-    if (!video) {
-      rafRef.current = requestAnimationFrame(draw);
-      return;
-    }
+    if (!video) return;
 
     const targetAmp = (isPlaying || isLoading) ? 4 : 0;
     amplitude.current += (targetAmp - amplitude.current) * 0.05;
@@ -273,32 +272,48 @@ const WavyProgress = memo(({
       durationRef.current.textContent = (Number.isFinite(dur) && dur > 0) ? formatTime(dur) : "--:--";
     }
 
-    rafRef.current = requestAnimationFrame(draw);
-  }, [isPlaying, isLoading, videoRef, trackWidth]);
+  }, [isPlaying, isLoading, videoRef, trackWidth, mid]);
 
   useEffect(() => {
-    let isHidden = false;
-    const handleVisibility = () => { isHidden = document.hidden; };
-    document.addEventListener("visibilitychange", handleVisibility);
+    drawRef.current = draw;
+  }, [draw]);
 
+  useEffect(() => {
     const loop = (time: number) => {
-      if (!isHidden) draw(time);
-      else rafRef.current = requestAnimationFrame(loop);
+      if (document.hidden) {
+        rafRef.current = undefined;
+        return;
+      }
+      drawRef.current(time);
+      rafRef.current = requestAnimationFrame(loop);
     };
 
-    rafRef.current = requestAnimationFrame(loop);
+    const handleVisibility = () => {
+      if (document.hidden) {
+        if (rafRef.current !== undefined) cancelAnimationFrame(rafRef.current);
+        rafRef.current = undefined;
+      } else if (rafRef.current === undefined) {
+        lastTime.current = 0;
+        rafRef.current = requestAnimationFrame(loop);
+      }
+    };
+
+    if (!document.hidden) rafRef.current = requestAnimationFrame(loop);
+    document.addEventListener("visibilitychange", handleVisibility);
     return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      if (rafRef.current !== undefined) cancelAnimationFrame(rafRef.current);
       document.removeEventListener("visibilitychange", handleVisibility);
     };
-  }, [draw]);
+  }, []);
 
   const handleLocalSeek = (e: React.PointerEvent<HTMLDivElement>) => {
     if (isLoading) return;
-    isDragging.current = true;
     const el = trackRef.current;
     const video = videoRef.current;
     if (!el || !video || !Number.isFinite(video.duration)) return;
+
+    isDragging.current = true;
+    setIsDraggingState(true);
 
     const rect = el.getBoundingClientRect();
     const seek = (clientX: number) => {
@@ -311,11 +326,14 @@ const WavyProgress = memo(({
     const onMove = (ev: PointerEvent) => seek(ev.clientX);
     const onUp = () => {
       isDragging.current = false;
+      setIsDraggingState(false);
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
     };
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
     onSeek(e);
   };
 
@@ -344,7 +362,7 @@ const WavyProgress = memo(({
           style={{ 
             transform: "translate3d(0,0,0)",
             marginTop: '-6px',
-            transition: isDragging.current ? 'none' : 'transform 240ms cubic-bezier(0.32, 0.72, 0, 1)'
+            transition: isDraggingState ? 'none' : 'transform 240ms cubic-bezier(0.32, 0.72, 0, 1)'
           }}
         >
           <div className={`w-3 h-3 rounded-full bg-[var(--accent)] shadow-sm transition-transform duration-75 group-hover:scale-125 ${isLoading ? 'animate-pulse' : ''}`} />
@@ -366,19 +384,15 @@ export default function DevSoundtrackWidget() {
   const [muted] = useState(false);
   const [index, setIndex] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [isLibraryOpen, setIsLibraryOpen] = useState(true);
   const [showNote, setShowNote] = useState(false);
   const [vinylEgg, setVinylEgg] = useState(false);
   
   const [audioReady, setAudioReady] = useState(false);
   const [coverReady, setCoverReady] = useState(false);
+  const isLoading = !audioReady || !coverReady;
 
   const currentTrack = playlistData.tracks[index];
-
-  useEffect(() => {
-    setIsLoading(!audioReady || !coverReady);
-  }, [audioReady, coverReady]);
 
   const colors = useMemo(() => {
     const base = "#38bdf8";

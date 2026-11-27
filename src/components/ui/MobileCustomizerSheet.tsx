@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Check, Palette, Layout, SunDim } from "lucide-react";
-import { usePortfolioTheme } from "../../context/PortfolioThemeContext";
+import { usePortfolioTheme } from "../../context/usePortfolioTheme";
 import { THEMES, type ThemeId, type DensityMode, type DimmingMode } from "../../config/portfolioWidgets";
 
 export default function MobileCustomizerSheet({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {

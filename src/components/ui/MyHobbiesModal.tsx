@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence, useDragControls } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Heart, X, ChevronLeft, ChevronRight, Maximize2, Minimize2, Compass } from "lucide-react";
 import { hobbiesData } from "../../data/hobbiesData";
 
 const SPRING = { type: "spring", stiffness: 360, damping: 28, mass: 0.85 } as const;
 
-export default function MyHobbiesModal({ onTriggerPhotos }: { onTriggerPhotos: () => void }) {
+export default function MyHobbiesModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
   const [photoIndex, setPhotoIndex] = useState(0);
@@ -16,13 +16,6 @@ export default function MyHobbiesModal({ onTriggerPhotos }: { onTriggerPhotos: (
   const [hearts, setHearts] = useState<{ id: number, x: number }[]>([]);
 
   const activeHobby = hobbiesData[activeTab];
-  const dragControls = useDragControls();
-
-  // Reset photo index when switching tabs
-  useEffect(() => {
-    setPhotoIndex(0);
-    setIsInspectMode(false);
-  }, [activeTab]);
 
   // Close on Escape
   useEffect(() => {
@@ -38,16 +31,21 @@ export default function MyHobbiesModal({ onTriggerPhotos }: { onTriggerPhotos: (
 
   const nextPhoto = () => setPhotoIndex((prev) => (prev + 1) % activeHobby.images.length);
   const prevPhoto = () => setPhotoIndex((prev) => (prev - 1 + activeHobby.images.length) % activeHobby.images.length);
+  const changeTab = (nextIndex: number) => {
+    setActiveTab(nextIndex);
+    setPhotoIndex(0);
+    setIsInspectMode(false);
+  };
 
-  const handleSwipeEnd = (e: any, info: any) => {
+  const handleSwipeEnd = (_event: any, info: any) => {
     if (info.offset.x < -50 || info.velocity.x < -500) {
-      setActiveTab((prev) => (prev + 1) % hobbiesData.length);
+      changeTab((activeTab + 1) % hobbiesData.length);
     } else if (info.offset.x > 50 || info.velocity.x > 500) {
-      setActiveTab((prev) => (prev - 1 + hobbiesData.length) % hobbiesData.length);
+      changeTab((activeTab - 1 + hobbiesData.length) % hobbiesData.length);
     }
   };
 
-  const handleLike = (e: React.MouseEvent) => {
+  const handleLike = () => {
     // Increment like count
     setLikes(prev => ({ ...prev, [activeHobby.id]: (prev[activeHobby.id] || 0) + 1 }));
     
@@ -125,7 +123,7 @@ export default function MyHobbiesModal({ onTriggerPhotos }: { onTriggerPhotos: (
                     {hobbiesData.map((hobby, i) => (
                       <button
                         key={hobby.id}
-                        onClick={() => setActiveTab(i)}
+                        onClick={() => changeTab(i)}
                         className={`relative px-4 py-2 rounded-xl text-xs font-semibold transition-colors shrink-0 ${
                           activeTab === i ? "text-white" : "text-slate-400 hover:text-slate-200"
                         }`}

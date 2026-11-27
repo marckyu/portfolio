@@ -27,7 +27,7 @@ function CyclingDeepDive() {
   const current = moments[index];
   const next = () => setIndex(i => (i + 1) % moments.length);
   const prev = () => setIndex(i => (i - 1 + moments.length) % moments.length);
-  const handleDragEnd = (e: any, info: any) => { if (info.offset.x < -50) next(); else if (info.offset.x > 50) prev(); };
+  const handleDragEnd = (_event: any, info: any) => { if (info.offset.x < -50) next(); else if (info.offset.x > 50) prev(); };
 
   return (
     <div className="flex flex-col md:flex-row h-full overflow-y-auto custom-scrollbar">
@@ -121,7 +121,7 @@ function PhotographyDeepDive() {
   const prev = () => setActiveIndex(i => (i - 1 + photos.length) % photos.length);
   const current = photos[activeIndex];
 
-  const handleDragEnd = (e: any, info: any) => {
+  const handleDragEnd = (_event: any, info: any) => {
     if (info.offset.x < -50) next();
     else if (info.offset.x > 50) prev();
   };

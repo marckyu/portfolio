@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion, AnimatePresence, useDragControls } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Camera, ChevronLeft, ChevronRight, Heart, Maximize2, X } from "lucide-react";
 import { hobbiesData, type Hobby } from "../../data/hobbiesData";
 
@@ -42,17 +42,15 @@ function HobbyCard({ hobby, index }: { hobby: Hobby; index: number }) {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [likes, setLikes] = useState(0);
   const [hearts, setHearts] = useState<{ id: number; x: number }[]>([]);
-  const dragControls = useDragControls();
-
   const nextPhoto = () => setPhotoIndex(p => (p + 1) % hobby.images.length);
   const prevPhoto = () => setPhotoIndex(p => (p - 1 + hobby.images.length) % hobby.images.length);
 
-  const handleSwipeEnd = (e: any, info: any) => {
+  const handleSwipeEnd = (_event: any, info: any) => {
     if (info.offset.x < -40) nextPhoto();
     else if (info.offset.x > 40) prevPhoto();
   };
 
-  const handleLike = (e: React.MouseEvent) => {
+  const handleLike = () => {
     setLikes(l => l + 1);
     const newHeart = { id: Date.now(), x: Math.random() * 40 - 20 };
     setHearts(prev => [...prev, newHeart]);

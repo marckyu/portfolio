@@ -8,7 +8,7 @@ import GithubIcon from "../ui/GithubIcon";
 import InfinitePortraits from "./InfinitePortraits";
 import M3BentoCard from "../ui/M3BentoCard";
 import FloatingMusicPill from "../ui/FloatingMusicPill";
-import { usePortfolioTheme } from "../../context/PortfolioThemeContext";
+import { usePortfolioTheme } from "../../context/usePortfolioTheme";
 
 const Lightbox = lazy(() => import("../ui/Lightbox"));
 

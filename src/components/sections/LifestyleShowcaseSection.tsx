@@ -52,12 +52,12 @@ function ShowcaseCard({ item, index }: { item: ShowcaseItem; index: number }) {
   const nextPhoto = () => setPhotoIndex(p => (p + 1) % item.images.length);
   const prevPhoto = () => setPhotoIndex(p => (p - 1 + item.images.length) % item.images.length);
 
-  const handleSwipeEnd = (e: any, info: any) => {
+  const handleSwipeEnd = (_event: any, info: any) => {
     if (info.offset.x < -40 || info.velocity.x < -500) nextPhoto();
     else if (info.offset.x > 40 || info.velocity.x > 500) prevPhoto();
   };
 
-  const handleLike = (e: React.MouseEvent) => {
+  const handleLike = () => {
     setLikes(l => l + 1);
     const newHeart = { id: Date.now(), x: Math.random() * 40 - 20 };
     setHearts(prev => [...prev, newHeart]);

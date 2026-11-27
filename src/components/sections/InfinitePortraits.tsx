@@ -28,7 +28,8 @@ function PortraitCard({ item, index, isDuplicate }: PortraitCardProps) {
           alt={item.alt}
           width={780}
           height={1040}
-          loading="eager"
+          loading={isDuplicate || index > 2 ? "lazy" : "eager"}
+          fetchPriority={!isDuplicate && index === 0 ? "high" : "auto"}
           decoding="async"
           draggable={false}
           onError={(e) => {
@@ -53,14 +54,8 @@ function PortraitCard({ item, index, isDuplicate }: PortraitCardProps) {
 export default function InfinitePortraits() {
   return (
     <section aria-hidden="true" className="relative py-10 overflow-hidden pointer-events-none">
-      <div className="marquee-container overflow-hidden scale-105">
-        <div 
-          className="flex w-max"
-          style={{
-            animation: "marquee-scroll 40s linear infinite",
-            willChange: "transform",
-          }}
-        >
+      <div className="marquee marquee-container overflow-hidden scale-105">
+        <div className="marquee-track flex w-max">
           <ul className="flex shrink-0" aria-label="Photos">
             {portraits.map((item, i) => (
               <PortraitCard
@@ -72,7 +67,7 @@ export default function InfinitePortraits() {
             ))}
           </ul>
           
-          <ul className="flex shrink-0" aria-hidden="true">
+          <ul className="marquee-dup flex shrink-0" aria-hidden="true">
             {portraits.map((item, i) => (
               <PortraitCard
                 key={`b-${i}`}

@@ -18,6 +18,7 @@ export const site = {
     { id: "expertise", label: "Expertise" },
     { id: "stack", label: "Stack" },
     { id: "projects", label: "Projects" },
+    { id: "hobbies", label: "Hobbies" },
     { id: "workflow", label: "Workflow" },
     { id: "learning", label: "Learning" },
     { id: "contact", label: "Contact" },

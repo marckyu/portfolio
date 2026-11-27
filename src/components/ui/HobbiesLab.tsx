@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence, useDragControls } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   Compass, Camera, Wrench, Gamepad2, Music, X, 
   ArrowRight, Zap, Radio, ShieldAlert, Sparkles
@@ -268,7 +268,6 @@ function MusicPlayground() {
 export default function HobbiesLab({ onTriggerPhotos }: { onTriggerPhotos: () => void }) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
-  const dragControls = useDragControls();
 
   // Close on Escape
   useEffect(() => {
@@ -277,7 +276,7 @@ export default function HobbiesLab({ onTriggerPhotos }: { onTriggerPhotos: () =>
     return () => window.removeEventListener("keydown", handleKey);
   }, [isOpen]);
 
-  const handleDragEnd = (e: any, info: any) => {
+  const handleDragEnd = (_event: any, info: any) => {
     if (info.offset.x < -50 || info.velocity.x < -500) {
       setActiveTab(prev => (prev + 1) % HOBBIES.length);
     } else if (info.offset.x > 50 || info.velocity.x > 500) {

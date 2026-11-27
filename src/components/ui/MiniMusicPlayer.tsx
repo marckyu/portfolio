@@ -27,15 +27,17 @@ export default function MiniMusicPlayer() {
     const audio = audioRef.current;
     if (!audio) return;
     audio.load();
-    if (playing) audio.play().catch(() => setPlaying(false));
   }, [index]);
 
-  const toggle = () => {
+  useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    if (playing) audio.pause();
-    else audio.play().catch(() => {});
-    setPlaying(!playing);
+    if (playing) audio.play().catch(() => setPlaying(false));
+    else audio.pause();
+  }, [index, playing]);
+
+  const toggle = () => {
+    setPlaying((current) => !current);
   };
 
   const pick = (i: number) => {
