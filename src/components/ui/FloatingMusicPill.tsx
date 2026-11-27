@@ -1,177 +1,259 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Pause, SkipBack, SkipForward, Minimize2, Music } from "lucide-react";
-import { playlistData } from "../../data/playlist";
-import { usePortfolioTheme } from "../../context/PortfolioThemeContext";
+import { Play, Pause, SkipBack, SkipForward, Minimize2, Music, ListMusic, X } from "lucide-react";
+import { musicLibrary } from "../../data/tracksAndAlbumsData";
 
-const SPRING = { type: "spring", stiffness: 360, damping: 28, mass: 0.85 } as const;
+const SPRING = { type: "spring", stiffness: 400, damping: 28, mass: 0.8 } as const;
 
-export default function FloatingMusicPill({ isCompact }: { isCompact: boolean }) {
-  const { density } = usePortfolioTheme();
-  const videoRef = useRef<HTMLVideoElement>(null);
-  
-  const [playing, setPlaying] = useState(false);
-  const [expanded, setExpanded] = useState(!isCompact);
-  const [index, setIndex] = useState(0);
+function ProgressBar({ videoRef }: { videoRef: React.RefObject<HTMLVideoElement | null> }) {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [mediaError, setMediaError] = useState(false);
-
-  const currentTrack = playlistData.tracks[index];
-  const nextTrack = playlistData.tracks[(index + 1) % playlistData.tracks.length];
-
-  useEffect(() => {
-    if (isCompact) setExpanded(false);
-  }, [isCompact, density]);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
     const update = () => setCurrentTime(video.currentTime);
     const meta = () => setDuration(video.duration);
-    const error = () => setMediaError(true);
-    
     video.addEventListener("timeupdate", update);
     video.addEventListener("loadedmetadata", meta);
-    video.addEventListener("error", error);
-    
     return () => {
       video.removeEventListener("timeupdate", update);
       video.removeEventListener("loadedmetadata", meta);
-      video.removeEventListener("error", error);
     };
-  }, [index]);
+  }, [videoRef]);
 
-  const togglePlay = () => {
+  return (
+    <div 
+      className="mt-2 group cursor-pointer w-full" 
+      style={{ touchAction: 'none' }}
+      onClick={(e) => e.stopPropagation()} // <-- PARA HINDI MAG-MINIMIZE PAG PININDOT ANG PROGRESS BAR
+    >
+      <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+        <div 
+          className="h-full bg-[var(--md-primary)] rounded-full transition-all" 
+          style={{ width: `${(currentTime / (duration || 1)) * 100}%` }}
+        />
+      </div>
+    </div>
+  );
+}
+
+export default function FloatingMusicPill({ isCompact }: { isCompact: boolean }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  
+  const [isExpanded, setIsExpanded] = useState(!isCompact);
+  const [isQueueOpen, setIsQueueOpen] = useState(false);
+  
+  const [playing, setPlaying] = useState(false);
+  const [albumIndex, setAlbumIndex] = useState(0);
+  const [trackIndex, setTrackIndex] = useState(0);
+  const [mediaError, setMediaError] = useState(false);
+
+  const currentAlbum = musicLibrary[albumIndex];
+  const currentTrack = currentAlbum.tracks[trackIndex];
+
+  useEffect(() => {
+    if (isCompact) setIsExpanded(false);
+  }, [isCompact]);
+
+  const togglePlay = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
     const video = videoRef.current;
     if (!video) return;
+    if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(8);
     if (playing) video.pause(); else video.play().catch(() => setPlaying(false));
     setPlaying(!playing);
   };
 
-  const handleNext = () => {
+  const playTrack = (index: number) => {
+    setTrackIndex(index);
     setMediaError(false);
-    setIndex((i) => (i + 1) % playlistData.tracks.length);
   };
 
-  const handlePrev = () => {
+  const handleNext = (e?: React.SyntheticEvent) => {
+    e?.stopPropagation();
     setMediaError(false);
-    setIndex((i) => (i - 1 + playlistData.tracks.length) % playlistData.tracks.length);
+    setTrackIndex((i) => (i + 1) % currentAlbum.tracks.length);
   };
+
+  const handlePrev = (e?: React.SyntheticEvent) => {
+    e?.stopPropagation();
+    setMediaError(false);
+    setTrackIndex((i) => (i - 1 + currentAlbum.tracks.length) % currentAlbum.tracks.length);
+  };
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.load();
+    if (playing) {
+      video.play().catch(() => setPlaying(false));
+    }
+  }, [trackIndex]);
 
   return (
-    <div className="w-full relative z-20">
+    <div className="w-full relative z-20 flex justify-end">
       <video 
         ref={videoRef} 
-        src={currentTrack.src} 
+        src={currentTrack.audioSrc} 
         playsInline 
         className="hidden" 
         onEnded={handleNext}
       />
 
-      <motion.div layout transition={SPRING} style={{ transform: "translate3d(0,0,0)", willChange: "transform" }}>
-        <AnimatePresence mode="wait" initial={false}>
-          {expanded ? (
-            <motion.div
-              key="expanded"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={SPRING}
-              className="flex flex-col gap-3 p-4 rounded-3xl bg-slate-950/65 border border-white/10 backdrop-blur-2xl shadow-xl"
-            >
-              <div className="flex justify-between items-start">
-                <div className="flex gap-3.5 items-center">
-                  <div className="w-14 h-14 rounded-2xl overflow-hidden bg-slate-800 border border-white/10 flex items-center justify-center">
-                    {mediaError ? (
-                      <Music className="text-white/40" size={24} />
-                    ) : (
-                      <video src={currentTrack.cover} autoPlay loop muted playsInline className="w-full h-full object-cover" />
-                    )}
-                  </div>
-                  <div className="flex flex-col">
-                    <h3 className="text-[15px] font-semibold text-white tracking-tight">{currentTrack.title}</h3>
-                    <p className="text-[13px] text-slate-400 mt-0.5">{currentTrack.artist}</p>
-                  </div>
-                </div>
-                <motion.button 
-                  whileTap={{ scale: 0.85 }}
-                  onClick={() => setExpanded(false)} 
-                  className="p-2 bg-white/5 rounded-full text-slate-400 hover:text-white"
-                >
-                  <Minimize2 size={16} />
-                </motion.button>
+      <AnimatePresence mode="wait">
+        {/* STATE 1: COMPACT PILL */}
+        {!isExpanded && (
+          <motion.div
+            key="compact"
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            transition={SPRING}
+            className="flex items-center justify-between p-2 pr-3 rounded-full bg-[var(--md-surface-container)] border border-[var(--md-outline)] shadow-lg cursor-pointer w-full max-w-sm gpu-accelerated"
+            onClick={() => setIsExpanded(true)}
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 rounded-full overflow-hidden shrink-0">
+                {mediaError ? <Music className="text-white/40 p-2" size={20} /> : <video src={currentTrack.coverImage} autoPlay loop muted playsInline className="w-full h-full object-cover" />}
               </div>
+              <div className="flex flex-col min-w-0">
+                <span className="text-[14px] font-semibold text-white truncate">{currentTrack.title}</span>
+                <span className="text-[12px] text-gray-400 truncate">{currentTrack.artist}</span>
+              </div>
+            </div>
+            <motion.button whileTap={{ scale: 0.85 }} onClick={togglePlay} className="w-10 h-10 rounded-full flex items-center justify-center bg-[var(--md-primary)] text-black shadow-sm shrink-0">
+              {playing ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" className="ml-0.5" />}
+            </motion.button>
+          </motion.div>
+        )}
 
-              <div className="mt-1 group cursor-pointer" style={{ touchAction: 'none' }}>
-                <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+        {/* STATE 2: EXPANDED ALBUM PLAYER */}
+        {isExpanded && (
+          <motion.div
+            key="expanded"
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            transition={SPRING}
+            onClick={() => setIsExpanded(false)} // <-- MINIMIZE WHEN TAPPING THE CARD (EXCEPT BUTTONS)
+            className="flex flex-col w-full max-w-sm rounded-[28px] bg-[var(--md-surface-container)] border border-[var(--md-outline)] shadow-2xl overflow-hidden gpu-accelerated cursor-pointer"
+          >
+            <div 
+              className="absolute inset-0 opacity-20 pointer-events-none" 
+              style={{ background: `radial-gradient(circle at top left, ${currentAlbum.accentColor}, transparent 70%)` }} 
+            />
+
+            {/* HEADER */}
+            <div className="flex justify-between items-center p-4 relative z-10">
+              <div className="flex flex-col">
+                <span className="text-[10px] font-bold text-[var(--md-primary)] uppercase tracking-widest">Now Playing</span>
+                <span className="text-sm font-semibold text-white">{currentAlbum.name}</span>
+              </div>
+              <div className="flex gap-2">
+                <button 
+                  onClick={(e) => { e.stopPropagation(); setIsQueueOpen(true); }} 
+                  className="p-2 rounded-full bg-white/5 text-gray-300 hover:text-white"
+                >
+                  <ListMusic size={18} />
+                </button>
+                <button 
+                  onClick={(e) => { e.stopPropagation(); setIsExpanded(false); }} 
+                  className="p-2 rounded-full bg-white/5 text-gray-300 hover:text-white"
+                >
+                  <Minimize2 size={18} />
+                </button>
+              </div>
+            </div>
+
+            {/* ALBUM ART & INFO */}
+            <div className="px-6 pb-4 relative z-10 flex flex-col items-center pointer-events-none">
+              <div className="w-48 h-48 rounded-[24px] overflow-hidden shadow-2xl border border-white/10 mb-4 relative">
+                 {mediaError ? <Music className="w-full h-full p-12 text-white/20" /> : <video src={currentTrack.coverImage} autoPlay loop muted playsInline className="w-full h-full object-cover" />}
+              </div>
+              <h2 className="text-xl font-bold text-white text-center">{currentTrack.title}</h2>
+              <p className="text-sm text-gray-400">{currentTrack.artist}</p>
+            </div>
+
+            {/* CONTROLS */}
+            <div className="px-6 pb-6 relative z-10">
+              <ProgressBar videoRef={videoRef} />
+              <div className="flex justify-center items-center gap-8 mt-4">
+                <button 
+                  onClick={(e) => { e.stopPropagation(); handlePrev(e); }} 
+                  className="text-gray-400 hover:text-white p-2"
+                >
+                  <SkipBack size={24} />
+                </button>
+                <button 
+                  onClick={togglePlay} 
+                  className="w-16 h-16 rounded-full flex items-center justify-center bg-[var(--md-primary)] text-black shadow-lg hover:scale-105 transition-transform"
+                >
+                  {playing ? <Pause size={28} fill="currentColor" /> : <Play size={28} fill="currentColor" className="ml-1" />}
+                </button>
+                <button 
+                  onClick={(e) => { e.stopPropagation(); handleNext(e); }} 
+                  className="text-gray-400 hover:text-white p-2"
+                >
+                  <SkipForward size={24} />
+                </button>
+              </div>
+            </div>
+
+            {/* UP NEXT PILL */}
+            <div 
+              className="mx-4 mb-4 p-3 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between cursor-pointer hover:bg-white/10 transition-colors relative z-10"
+              onClick={(e) => { e.stopPropagation(); setIsQueueOpen(true); }}
+            >
+               <div className="flex items-center gap-3">
+                 <span className="text-[10px] font-bold text-[var(--md-primary)] uppercase tracking-widest">Up Next</span>
+                 <span className="text-sm font-medium text-white truncate">{currentAlbum.tracks[(trackIndex + 1) % currentAlbum.tracks.length].title}</span>
+               </div>
+               <ListMusic size={16} className="text-gray-400" />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* QUEUE DRAWER OVERLAY */}
+      <AnimatePresence>
+        {isQueueOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-end justify-center sm:items-center p-4"
+            onClick={() => setIsQueueOpen(false)}
+          >
+            <motion.div 
+              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={SPRING}
+              onClick={e => e.stopPropagation()}
+              className="w-full max-w-sm bg-[var(--md-surface-container)] border border-[var(--md-outline)] rounded-[28px] overflow-hidden shadow-2xl max-h-[80vh] flex flex-col"
+            >
+              <div className="p-4 border-b border-[var(--md-outline)] flex justify-between items-center bg-[var(--md-surface-container-high)]">
+                <h3 className="text-lg font-bold text-white">Queue</h3>
+                <button onClick={() => setIsQueueOpen(false)} className="p-2 rounded-full bg-white/5 text-gray-400"><X size={18} /></button>
+              </div>
+              <div className="p-2 overflow-y-auto custom-scrollbar">
+                {currentAlbum.tracks.map((track, i) => (
                   <div 
-                    className="h-full bg-white rounded-full transition-all" 
-                    style={{ width: `${(currentTime / (duration || 1)) * 100}%` }}
-                  />
-                </div>
+                    key={track.id}
+                    onClick={() => { playTrack(i); setIsQueueOpen(false); }}
+                    className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-colors ${i === trackIndex ? "bg-[var(--md-primary-container)] text-[var(--md-on-primary-container)]" : "hover:bg-white/5 text-gray-300"}`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-mono">{i + 1}</span>
+                      <div>
+                        <p className={`text-sm font-semibold ${i === trackIndex ? "text-[var(--md-on-primary-container)]" : "text-white"}`}>{track.title}</p>
+                        <p className="text-[11px] opacity-70">{track.artist}</p>
+                      </div>
+                    </div>
+                    <span className="text-xs font-mono">{track.duration}</span>
+                  </div>
+                ))}
               </div>
-
-              <div className="flex justify-center items-center gap-6 mt-1">
-                <motion.button whileTap={{ scale: 0.85 }} onClick={handlePrev} className="p-2 text-slate-400 hover:text-white"><SkipBack size={22} /></motion.button>
-                <motion.button 
-                  whileTap={{ scale: 0.85 }}
-                  onClick={togglePlay}
-                  className="w-14 h-14 rounded-full flex items-center justify-center bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.2)]"
-                >
-                  {playing ? <Pause size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" className="ml-1" />}
-                </motion.button>
-                <motion.button whileTap={{ scale: 0.85 }} onClick={handleNext} className="p-2 text-slate-400 hover:text-white"><SkipForward size={22} /></motion.button>
-              </div>
-
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-                className="mt-2 p-2.5 rounded-2xl bg-white/5 border border-white/5 flex items-center gap-3 cursor-pointer"
-                onClick={handleNext}
-              >
-                <div className="w-10 h-10 rounded-xl bg-slate-800 border border-white/10 overflow-hidden flex items-center justify-center shrink-0">
-                   <video src={nextTrack.cover} autoPlay loop muted playsInline className="w-full h-full object-cover" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Up Next</p>
-                  <p className="text-[13px] font-medium text-white truncate mt-0.5">{nextTrack.title}</p>
-                </div>
-              </motion.div>
             </motion.div>
-          ) : (
-            <motion.div
-              key="compact"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={SPRING}
-              className="flex items-center justify-between p-2 pr-3 rounded-full bg-slate-950/65 border border-white/10 backdrop-blur-2xl shadow-lg cursor-pointer min-h-[60px]"
-              onClick={() => setExpanded(true)}
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-full bg-slate-800 border border-white/10 overflow-hidden flex items-center justify-center shrink-0">
-                  {mediaError ? (
-                    <Music className="text-white/40" size={16} />
-                  ) : (
-                    <video src={currentTrack.cover} autoPlay loop muted playsInline className="w-full h-full object-cover" />
-                  )}
-                </div>
-                <div className="flex flex-col min-w-0">
-                  <span className="text-[14px] font-semibold text-white truncate">{currentTrack.title}</span>
-                  <span className="text-[12px] text-slate-400 truncate">{currentTrack.artist}</span>
-                </div>
-              </div>
-              <motion.button 
-                whileTap={{ scale: 0.85 }}
-                onClick={(e) => { e.stopPropagation(); togglePlay(); }}
-                className="w-10 h-10 rounded-full flex items-center justify-center bg-white text-black shadow-sm shrink-0"
-              >
-                {playing ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" className="ml-0.5" />}
-              </motion.button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

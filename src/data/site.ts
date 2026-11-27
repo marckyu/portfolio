@@ -2,7 +2,7 @@ import type { SocialLink } from "../types";
 
 export const site = {
   name: "John Marc F. Asuncion",
-  shortName: "John Marc",
+  shortName: "Jey_em",
   role: "Learning AI-Augmented Developer",
   specialties: ["Web Development", "Game Development"],
   intro:

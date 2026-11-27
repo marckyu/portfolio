@@ -58,6 +58,17 @@
   100% { transform: translate3d(-33.333%, 0, 0); }
 }
 
+
+.gpu-accelerated {
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+
+.offscreen-section {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 1000px;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
@@ -80,7 +91,6 @@
     text-rendering: optimizeLegibility;
   }
 
-  /* Native SVG Cursor */
   @media (hover: hover) and (pointer: fine) {
     body, p, h1, h2, h3, h4, span, div {
       cursor: url('/cursor.svg') 16 16, auto !important;
@@ -125,6 +135,15 @@
   button:focus:not(:focus-visible),
   a:focus:not(:focus-visible) {
     outline: none;
+  }
+
+  /* Mobile Blur Budget - Critical for Android 120Hz */
+  @media (pointer: coarse) {
+    .backdrop-blur-2xl, .backdrop-blur-3xl {
+      backdrop-filter: blur(8px) !important;
+      -webkit-backdrop-filter: blur(8px) !important;
+      background-color: rgba(2, 6, 23, 0.85) !important;
+    }
   }
 }
 
@@ -292,7 +311,6 @@ section {
   background: rgba(255, 255, 255, 0.2);
 }
 
-/* Seamless Loop Classes */
 .flex.w-max.paused {
   animation-play-state: paused !important;
 }
