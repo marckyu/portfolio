@@ -42,7 +42,10 @@ export default function App() {
   }, [playing]);
 
   return (
-    <MotionConfig reducedMotion="user">
+    <MotionConfig
+      reducedMotion="user"
+      transition={{ type: "spring", stiffness: 450, damping: 32, mass: 0.75 }}
+    >
       <PortfolioThemeProvider>
         <div id="top" className="overflow-x-clip relative min-h-screen bg-[var(--md-surface)] transition-colors duration-300">
           <ScrollProgress />

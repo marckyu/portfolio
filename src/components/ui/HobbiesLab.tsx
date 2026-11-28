@@ -16,7 +16,7 @@ const HOBBIES = [
 ];
 
 // --- MINI-PLAYGROUND 1: PHOTOGRAPHY ---
-function PhotographyPlayground({ onTriggerPhotos }: { onTriggerPhotos: () => void }) {
+function PhotographyPlayground({ onTriggerPhotos }: { onTriggerPhotos: () =>  void }) {
   const [filter, setFilter] = useState("cyber");
   
   const filters = {

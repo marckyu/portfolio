@@ -159,6 +159,20 @@
       backdrop-filter: blur(8px) saturate(110%);
       -webkit-backdrop-filter: blur(8px) saturate(110%);
     }
+
+    .adaptive-glass {
+      background-color: rgb(2 6 23 / 88%) !important;
+      backdrop-filter: blur(12px) saturate(120%) !important;
+      -webkit-backdrop-filter: blur(12px) saturate(120%) !important;
+    }
+  }
+
+  @media (pointer: fine) {
+    .adaptive-glass {
+      background-color: rgb(2 6 23 / 75%) !important;
+      backdrop-filter: blur(24px) saturate(140%) !important;
+      -webkit-backdrop-filter: blur(24px) saturate(140%) !important;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
